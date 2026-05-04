@@ -3,7 +3,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 30px;
+  padding: 15px 30px;
   gap: 25px;
   flex-wrap: wrap;
   position: sticky;
@@ -224,21 +224,21 @@
 /* Auth Buttons */
 .auth-buttons {
   display: flex;
-  gap: 8px;
+  gap: 12px;
 }
 
 /* Admin Link */
 .admin-link {
-  padding: 8px 14px;
+  padding: 10px 18px;
   background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
   color: #fff;
   text-decoration: none;
   border-radius: 20px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   transition: all 0.25s ease;
   display: inline-block;
-  margin-right: 10px;
+  margin-right: 12px;
 }
 
 .admin-link:hover {
@@ -247,11 +247,11 @@
 }
 
 .btn {
-  padding: 8px 18px;
+  padding: 10px 22px;
   border-radius: 20px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   transition: all 0.25s ease;
   border: none;
 }
@@ -292,7 +292,7 @@
   gap: 8px;
   background: #1f1f1f;
   border: 1px solid #333;
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: 25px;
   cursor: pointer;
   color: #fff;
