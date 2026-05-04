@@ -91,9 +91,20 @@ export class AdminComponent implements OnInit {
   }
 
   cargarResenas() {
-    this.http.get<Resena[]>(`${this.apiResenas}/resenas/todas`).subscribe({
-      next: (data) => (this.resenas = data),
-      error: () => alert('Error al cargar reseñas')
+    this.http.get<any[]>(`${this.apiResenas}/resenas/todas`).subscribe({
+      next: (data) => {
+        this.resenas = data.map(r => ({
+          id: r.id,
+          usuarioId: r.usuarioId,
+          nombreUsuario: r.nombreUsuario,
+          titulo: r.titulo,
+          comentario: r.comentario,
+          tipoContenido: r.tipoContenido,
+          contenidoId: r.contenidoId,
+          fechaCreacion: r.fechaCreacion
+        }));
+      },
+      error: (err) => console.error('Error cargando reseñas:', err)
     });
   }
 
@@ -148,8 +159,14 @@ export class AdminComponent implements OnInit {
     if (!confirm('¿Eliminar esta película?')) return;
     
     this.http.delete(`${this.apiPeliculas}/${id}`).subscribe({
-      next: () => this.cargarPeliculas(),
-      error: () => alert('Error al eliminar película')
+      next: () => {
+        this.cargarPeliculas();
+        alert('Película eliminada');
+      },
+      error: (err) => {
+        console.error('Error:', err);
+        alert('Error al eliminar película');
+      }
     });
   }
 

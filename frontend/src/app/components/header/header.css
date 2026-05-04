@@ -237,6 +237,8 @@
   font-weight: 600;
   font-size: 13px;
   transition: all 0.25s ease;
+  display: inline-block;
+  margin-right: 10px;
 }
 
 .admin-link:hover {
@@ -279,6 +281,9 @@
 /* User Menu */
 .user-menu-container {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .user-button {
