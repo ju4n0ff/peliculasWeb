@@ -22,7 +22,7 @@ export const routes: Routes = [
   { path: 'nosotros', component: NosotrosComponent },
   { path: 'perfil', component: PerfilComponent },
   { path: 'admin', component: AdminComponent },
-  { path: 'detalle/:tipo/:id', component: DetalleComponent },
+  { path: 'detalle/:tipo/:slug', component: DetalleComponent },
   { path: 'terminos', component: TerminosComponent },
   { path: 'privacidad', component: PrivacidadComponent },
   { path: '', redirectTo: 'home', pathMatch: 'full' }

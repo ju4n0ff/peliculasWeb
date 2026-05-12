@@ -21,4 +21,9 @@ export class PeliculasComponent implements OnInit {
       error: () => alert('No se pudo cargar el catalogo de peliculas')
     });
   }
+
+  getDetalleLink(id: number, titulo: string): string[] {
+    const slug = titulo.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    return ['/detalle', 'pelicula', `${id}-${slug}`];
+  }
 }

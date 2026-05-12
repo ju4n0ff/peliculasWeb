@@ -39,7 +39,9 @@ export class DetalleComponent implements OnInit {
   ngOnInit() {
     this.route.params.subscribe(params => {
       this.tipo = params['tipo'] as 'pelicula' | 'serie';
-      this.contenidoId = +params['id'];
+      const slug = params['slug'];
+      const match = slug.match(/^(\d+)(?:-(.+))?$/);
+      this.contenidoId = match ? parseInt(match[1], 10) : 0;
       this.cargarContenido();
     });
   }

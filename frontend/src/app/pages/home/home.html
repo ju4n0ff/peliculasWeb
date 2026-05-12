@@ -2,7 +2,15 @@
   <!-- Banner con video de YouTube -->
   <section class="banner">
     <div class="video-container" [class.video-active]="videoPlaying">
-      <div id="youtube-player"></div>
+      <iframe
+        id="trailer-iframe"
+        [src]="videoSrc"
+        title="Tráiler principal"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
+      </iframe>
     </div>
 
     <div class="thumbnail-overlay" [class.hidden]="videoPlaying">
@@ -20,7 +28,7 @@
         <p>Ellie y Abby se enfrentan por venganza en un mundo roto.</p>
         <div class="banner-buttons">
           <button class="btn-trailer" (click)="playVideo()">▶ Ver Tráiler</button>
-          <button class="btn-info" [routerLink]="['/detalle', 'serie', 1]">+ Información</button>
+          <button class="btn-info" [routerLink]="['/detalle', 'serie', '2-bojack-horseman']">+ Información</button>
         </div>
       </div>
     </div>
@@ -32,7 +40,7 @@
       <h2>Últimos Estrenos</h2>
     </div>
     <div class="grid-container">
-      <div class="slide" *ngFor="let pelicula of peliculas" [routerLink]="['/detalle', 'pelicula', pelicula.id]">
+          <div class="slide" *ngFor="let pelicula of peliculas" [routerLink]="getDetalleLink('pelicula', pelicula.id, pelicula.titulo)">
         <div class="slide-item">
           <img *ngIf="pelicula.imagenUrl" [src]="pelicula.imagenUrl" [alt]="pelicula.titulo" class="slide-image">
           <div *ngIf="!pelicula.imagenUrl" class="slide-placeholder"></div>
@@ -51,7 +59,7 @@
       <h2>Películas y Series Recomendadas</h2>
     </div>
     <div class="grid-container">
-      <div class="slide" *ngFor="let serie of series" [routerLink]="['/detalle', 'serie', serie.id]">
+          <div class="slide" *ngFor="let serie of series" [routerLink]="getDetalleLink('serie', serie.id, serie.titulo)">
         <div class="slide-item">
           <img *ngIf="serie.imagenUrl" [src]="serie.imagenUrl" [alt]="serie.titulo" class="slide-image">
           <div *ngIf="!serie.imagenUrl" class="slide-placeholder"></div>

@@ -4,7 +4,7 @@
   </div>
 
   <div class="grid-series">
-    <div class="serie-card" *ngFor="let serie of series" [routerLink]="['/detalle', 'serie', serie.id]">
+      <div class="serie-card" *ngFor="let serie of series" [routerLink]="getDetalleLink(serie.id, serie.titulo)">
       <img class="serie-image" [src]="serie.imagenUrl" [alt]="serie.titulo"/>
       <h3>{{ serie.titulo }}</h3>
     </div>

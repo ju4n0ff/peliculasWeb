@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CatalogoService, Pelicula, Serie } from '../../services/catalogo';
-
-declare var YT: any;
 
 @Component({
   selector: 'app-home',
@@ -17,12 +16,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   series: Serie[] = [];
   videoPlaying = false;
   thumbnailError = false;
+  videoSrc: SafeResourceUrl = '';
   private player: any;
-  private playerReady = false;
 
-  constructor(private catalogoService: CatalogoService) {}
+  constructor(
+    private catalogoService: CatalogoService,
+    private sanitizer: DomSanitizer
+  ) {}
 
   ngOnInit() {
+    this.videoSrc = this.sanitizer.bypassSecurityTrustResourceUrl(
+      'https://www.youtube.com/embed/rQvIR1oL1vE?autoplay=1&controls=1&showinfo=0&modestbranding=1&rel=0'
+    );
+
     this.catalogoService.listarPeliculas().subscribe({
       next: (data) => (this.peliculas = data),
       error: () => (this.peliculas = [])
@@ -32,8 +38,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       next: (data) => (this.series = data),
       error: () => (this.series = [])
     });
-
-    this.loadYouTubeAPI();
   }
 
   ngOnDestroy() {
@@ -42,50 +46,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  private loadYouTubeAPI() {
-    if (document.querySelector('script[src*="youtube.com/iframe_api"]')) {
-      this.waitForYouTubeAPI();
-    } else {
-      const script = document.createElement('script');
-      script.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(script);
-      script.onload = () => this.waitForYouTubeAPI();
-    }
-  }
-
-  private waitForYouTubeAPI() {
-    const check = setInterval(() => {
-      if (typeof YT !== 'undefined' && YT.Player) {
-        clearInterval(check);
-        this.initPlayer();
-      }
-    }, 100);
-  }
-
-  private initPlayer() {
-    this.player = new YT.Player('youtube-player', {
-      videoId: 'rQvIR1oL1vE',
-      playerVars: {
-        autoplay: 0,
-        controls: 1,
-        showinfo: 0,
-        modestbranding: 1,
-        rel: 0
-      },
-      events: {
-        onReady: (event: any) => {
-          this.playerReady = true;
-        }
-      }
-    });
-  }
-
   playVideo(): void {
     this.videoPlaying = true;
-    setTimeout(() => {
-      if (this.player && this.player.playVideo) {
-        this.player.playVideo();
-      }
-    }, 100);
+  }
+
+  slugify(text: string): string {
+    return text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  }
+
+  getDetalleLink(tipo: string, id: number, titulo: string): string[] {
+    return ['/detalle', tipo, `${id}-${this.slugify(titulo)}`];
   }
 }
