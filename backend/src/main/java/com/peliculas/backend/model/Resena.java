@@ -29,6 +29,9 @@ public class Resena {
     @Column(nullable = false, length = 2000)
     private String comentario;
 
+    @Column(nullable = false)
+    private Integer likes = 0;
+
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
 
@@ -79,6 +82,14 @@ public class Resena {
 
     public String getComentario() {
         return comentario;
+    }
+
+    public Integer getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Integer likes) {
+        this.likes = likes;
     }
 
     public void setComentario(String comentario) {

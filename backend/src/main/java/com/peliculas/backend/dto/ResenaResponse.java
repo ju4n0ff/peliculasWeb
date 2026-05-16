@@ -10,7 +10,9 @@ public class ResenaResponse {
     private String nombreUsuario;
     private String titulo;
     private String comentario;
+    private int likes;
     private LocalDateTime fechaCreacion;
+    private boolean liked;
 
     public static ResenaResponse fromEntity(Resena resena) {
         ResenaResponse response = new ResenaResponse();
@@ -19,8 +21,18 @@ public class ResenaResponse {
         response.nombreUsuario = resena.getUsuario().getNombreUsuario();
         response.titulo = resena.getTitulo();
         response.comentario = resena.getComentario();
+        response.likes = resena.getLikes();
         response.fechaCreacion = resena.getFechaCreacion();
+
         return response;
+    }
+
+    public boolean isLiked() {
+        return liked;
+    }
+
+    public void setLiked(boolean liked) {
+        this.liked = liked;
     }
 
     public Long getId() {
@@ -45,5 +57,9 @@ public class ResenaResponse {
 
     public LocalDateTime getFechaCreacion() {
         return fechaCreacion;
+    }
+
+    public Integer getLikes() {
+        return likes;
     }
 }

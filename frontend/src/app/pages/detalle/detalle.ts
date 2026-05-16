@@ -78,10 +78,17 @@ export class DetalleComponent implements OnInit {
     const tipoContenido: TipoContenido = this.tipo === 'pelicula' ? 'PELICULA' : 'SERIE';
     const usuarioId = this.authService.obtenerUsuarioId() ?? undefined;
 
-    this.socialService.listarResenas(tipoContenido, this.contenidoId).subscribe({
-      next: (data) => (this.resenas = data),
-      error: () => (this.resenas = [])
-    });
+ this.socialService.listarResenas(tipoContenido, this.contenidoId).subscribe({
+  next: (data) => {
+    this.resenas = data.map(r => ({
+      ...r,
+      liked: r.liked ?? false
+    }));
+  },
+  error: () => {
+    this.resenas = [];
+  }
+});
 
     this.socialService.obtenerResumen(tipoContenido, this.contenidoId, usuarioId).subscribe({
       next: (data) => {
@@ -169,6 +176,23 @@ export class DetalleComponent implements OnInit {
       error: () => alert('No se pudo actualizar favoritos')
     });
   }
+
+darLike(resena: Resena) {
+  const usuarioId = this.authService.obtenerUsuarioId();
+
+  if (!usuarioId) {
+    alert('Inicia sesión para dar like');
+    return;
+  }
+
+  this.socialService.darLike(resena.id, usuarioId).subscribe({
+   next: (res) => {
+  resena.likes = res.likes;
+  resena.liked = res.liked;
+}
+  
+  });
+}
 
   get titulo(): string {
     return this.pelicula?.titulo || this.serie?.titulo || '';

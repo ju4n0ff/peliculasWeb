@@ -78,7 +78,18 @@
         </div>
         <h4 class="resena-titulo">{{ resena.titulo }}</h4>
         <p class="resena-comentario">{{ resena.comentario }}</p>
+
+        
+
+<button class="like-btn" (click)="darLike(resena)">
+  <span class="heart">❤️</span>
+  <span>{{ resena.likes }}</span>
+</button>
       </div>
+      
+
+
+
       
       <p class="sin-resenas" *ngIf="resenas.length === 0">
         No hay reseñas aún. ¡Sé el primero en opinar!

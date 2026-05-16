@@ -4,11 +4,12 @@ import com.peliculas.backend.dto.CalificacionRequest;
 import com.peliculas.backend.dto.CalificacionResumenResponse;
 import com.peliculas.backend.dto.FavoritoRequest;
 import com.peliculas.backend.dto.ResenaRequest;
+import com.peliculas.backend.dto.ResenaResponse;
 import com.peliculas.backend.model.*;
 import com.peliculas.backend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.peliculas.backend.dto.LikeResponse;
 import java.util.List;
 
 @Service
@@ -18,6 +19,7 @@ public class SocialService {
     private final PeliculaRepository peliculaRepository;
     private final SerieRepository serieRepository;
     private final ResenaRepository resenaRepository;
+    private final ResenaLikeRepository resenaLikeRepository;
     private final CalificacionRepository calificacionRepository;
     private final FavoritoRepository favoritoRepository;
 
@@ -26,10 +28,11 @@ public class SocialService {
             PeliculaRepository peliculaRepository,
             SerieRepository serieRepository,
             ResenaRepository resenaRepository,
+            ResenaLikeRepository resenaLikeRepository,
             CalificacionRepository calificacionRepository,
-            FavoritoRepository favoritoRepository
-    ) {
+            FavoritoRepository favoritoRepository) {
         this.usuarioRepository = usuarioRepository;
+        this.resenaLikeRepository = resenaLikeRepository;
         this.peliculaRepository = peliculaRepository;
         this.serieRepository = serieRepository;
         this.resenaRepository = resenaRepository;
@@ -38,7 +41,7 @@ public class SocialService {
     }
 
     @Transactional
-    public Resena crearResena(ResenaRequest request) {
+    public ResenaResponse crearResena(ResenaRequest request) {
         Usuario usuario = buscarUsuario(request.getUsuarioId());
         validarContenido(request.getTipoContenido(), request.getContenidoId());
 
@@ -48,11 +51,33 @@ public class SocialService {
         resena.setContenidoId(request.getContenidoId());
         resena.setTitulo(request.getTitulo());
         resena.setComentario(request.getComentario());
-        return resenaRepository.save(resena);
+
+        Resena guardada = resenaRepository.save(resena);
+
+        return ResenaResponse.fromEntity(guardada);
     }
 
-    public List<Resena> listarResenas(TipoContenido tipoContenido, Long contenidoId) {
-        return resenaRepository.findByTipoContenidoAndContenidoIdOrderByFechaCreacionDesc(tipoContenido, contenidoId);
+    public List<ResenaResponse> listarResenasConLike(
+            TipoContenido tipoContenido,
+            Long contenidoId,
+            Long usuarioId) {
+
+        List<Resena> resenas = resenaRepository
+                .findByTipoContenidoAndContenidoIdOrderByFechaCreacionDesc(tipoContenido, contenidoId);
+
+        return resenas.stream().map(resena -> {
+
+            ResenaResponse dto = ResenaResponse.fromEntity(resena);
+            boolean liked = false;
+
+            if (usuarioId != null) {
+                liked = resenaLikeRepository.existsByUsuario_IdAndResena_Id(usuarioId, resena.getId());
+            }
+
+            dto.setLiked(liked);
+
+            return dto;
+        }).toList();
     }
 
     public List<Resena> listarResenasUsuario(Long usuarioId) {
@@ -92,7 +117,8 @@ public class SocialService {
         validarContenido(request.getTipoContenido(), request.getContenidoId());
 
         Calificacion calificacion = calificacionRepository
-                .findByUsuarioIdAndTipoContenidoAndContenidoId(usuario.getId(), request.getTipoContenido(), request.getContenidoId())
+                .findByUsuarioIdAndTipoContenidoAndContenidoId(usuario.getId(), request.getTipoContenido(),
+                        request.getContenidoId())
                 .orElseGet(Calificacion::new);
 
         calificacion.setUsuario(usuario);
@@ -104,7 +130,8 @@ public class SocialService {
         return obtenerResumenCalificacion(request.getTipoContenido(), request.getContenidoId(), request.getUsuarioId());
     }
 
-    public CalificacionResumenResponse obtenerResumenCalificacion(TipoContenido tipoContenido, Long contenidoId, Long usuarioId) {
+    public CalificacionResumenResponse obtenerResumenCalificacion(TipoContenido tipoContenido, Long contenidoId,
+            Long usuarioId) {
         Double promedio = calificacionRepository.calcularPromedio(tipoContenido, contenidoId);
         long total = calificacionRepository.countByTipoContenidoAndContenidoId(tipoContenido, contenidoId);
         Integer miPuntuacion = null;
@@ -124,7 +151,8 @@ public class SocialService {
         validarContenido(request.getTipoContenido(), request.getContenidoId());
 
         Favorito existente = favoritoRepository
-                .findByUsuarioIdAndTipoContenidoAndContenidoId(usuario.getId(), request.getTipoContenido(), request.getContenidoId())
+                .findByUsuarioIdAndTipoContenidoAndContenidoId(usuario.getId(), request.getTipoContenido(),
+                        request.getContenidoId())
                 .orElse(null);
 
         if (existente != null) {
@@ -151,6 +179,45 @@ public class SocialService {
         return favoritoRepository
                 .findByUsuarioIdAndTipoContenidoAndContenidoId(usuarioId, tipoContenido, contenidoId)
                 .isPresent();
+    }
+
+    @Transactional
+    public LikeResponse darLike(Long resenaId, Long usuarioId) {
+
+        Resena resena = resenaRepository.findById(resenaId)
+                .orElseThrow(() -> new RuntimeException("Reseña no encontrada"));
+
+        boolean yaExiste = resenaLikeRepository
+                .existsByUsuario_IdAndResena_Id(usuarioId, resenaId);
+
+        if (yaExiste) {
+
+            ResenaLike like = resenaLikeRepository
+                    .findByUsuario_IdAndResena_Id(usuarioId, resenaId);
+
+            if (like != null) {
+                resenaLikeRepository.delete(like);
+            }
+
+            resena.setLikes(Math.max(0, resena.getLikes() - 1));
+
+        } else {
+
+            Usuario usuario = usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            ResenaLike like = new ResenaLike();
+            like.setUsuario(usuario);
+            like.setResena(resena);
+
+            resenaLikeRepository.save(like);
+
+            resena.setLikes(resena.getLikes() + 1);
+        }
+
+        resenaRepository.save(resena);
+
+        return new LikeResponse(resena.getLikes(), !yaExiste);
     }
 
     private Usuario buscarUsuario(Long usuarioId) {

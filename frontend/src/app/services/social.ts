@@ -11,12 +11,15 @@ export interface Resena {
   titulo: string;
   comentario: string;
   fechaCreacion: string;
+  likes: number;
+  liked: boolean;
 }
 
 export interface CalificacionResumen {
   promedio: number;
   total: number;
   miPuntuacion: number | null;
+    likes: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -31,6 +34,12 @@ export class SocialService {
       .set('contenidoId', contenidoId);
     return this.http.get<Resena[]>(`${this.api}/resenas`, { params });
   }
+darLike(resenaId: number, usuarioId: number) {
+  return this.http.post<{ likes: number; liked: boolean }>(
+    `${this.api}/resenas/${resenaId}/usuario/${usuarioId}/like`,
+    {}
+  );
+}
 
   crearResena(payload: {
     usuarioId: number;

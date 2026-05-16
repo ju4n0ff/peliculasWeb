@@ -2,7 +2,7 @@ package com.peliculas.backend.controller;
 
 import com.peliculas.backend.dto.*;
 import com.peliculas.backend.model.Favorito;
-import com.peliculas.backend.model.Resena;
+
 import com.peliculas.backend.model.TipoContenido;
 import com.peliculas.backend.service.SocialService;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +24,15 @@ public class SocialController {
     @GetMapping("/resenas")
     public List<ResenaResponse> listarResenas(
             @RequestParam TipoContenido tipoContenido,
-            @RequestParam Long contenidoId
-    ) {
-        return socialService.listarResenas(tipoContenido, contenidoId)
-                .stream()
-                .map(ResenaResponse::fromEntity)
-                .toList();
+            @RequestParam Long contenidoId,
+            @RequestParam(required = false) Long usuarioId) {
+
+        return socialService.listarResenasConLike(tipoContenido, contenidoId, usuarioId);
+    }
+
+    @PostMapping("/resenas")
+    public ResenaResponse crearResena(@RequestBody ResenaRequest request) {
+        return socialService.crearResena(request);
     }
 
     @GetMapping("/resenas/usuario/{usuarioId}")
@@ -40,10 +43,12 @@ public class SocialController {
                 .toList();
     }
 
-    @PostMapping("/resenas")
-    public ResenaResponse crearResena(@RequestBody ResenaRequest request) {
-        Resena resena = socialService.crearResena(request);
-        return ResenaResponse.fromEntity(resena);
+    @PostMapping("/resenas/{resenaId}/usuario/{usuarioId}/like")
+    public LikeResponse darLike(
+            @PathVariable Long resenaId,
+            @PathVariable Long usuarioId) {
+
+        return socialService.darLike(resenaId, usuarioId);
     }
 
     @DeleteMapping("/resenas/{resenaId}")
@@ -73,8 +78,7 @@ public class SocialController {
     public CalificacionResumenResponse obtenerResumen(
             @RequestParam TipoContenido tipoContenido,
             @RequestParam Long contenidoId,
-            @RequestParam(required = false) Long usuarioId
-    ) {
+            @RequestParam(required = false) Long usuarioId) {
         return socialService.obtenerResumenCalificacion(tipoContenido, contenidoId, usuarioId);
     }
 
@@ -87,8 +91,7 @@ public class SocialController {
     @GetMapping("/favoritos")
     public List<Favorito> listarFavoritos(
             @RequestParam Long usuarioId,
-            @RequestParam(required = false) TipoContenido tipoContenido
-    ) {
+            @RequestParam(required = false) TipoContenido tipoContenido) {
         return socialService.listarFavoritos(usuarioId, tipoContenido);
     }
 
@@ -96,8 +99,7 @@ public class SocialController {
     public Map<String, Boolean> esFavorito(
             @RequestParam Long usuarioId,
             @RequestParam TipoContenido tipoContenido,
-            @RequestParam Long contenidoId
-    ) {
+            @RequestParam Long contenidoId) {
         return Map.of("favorito", socialService.esFavorito(usuarioId, tipoContenido, contenidoId));
     }
 }
