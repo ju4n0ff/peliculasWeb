@@ -20,7 +20,7 @@ interface FavoritoConNombre {
   styleUrl: './perfil.css',
 })
 export class PerfilComponent {
-  usuarioId: number | null = null;
+  userId: string | null = null;
   nombreUsuario = '';
   resenas: Resena[] = [];
   favoritos: FavoritoConNombre[] = [];
@@ -34,14 +34,13 @@ export class PerfilComponent {
   ) {}
 
   ngOnInit() {
-    this.usuarioId = this.authService.obtenerUsuarioId();
+    this.userId = this.authService.obtenerUserId();
     this.nombreUsuario = localStorage.getItem('nombreUsuario') ?? '';
 
-    if (!this.usuarioId) {
+    if (!this.userId) {
       return;
     }
 
-    // Cargar películas y series primero
     this.catalogoService.listarPeliculas().subscribe({
       next: (data) => {
         this.peliculas = data;
@@ -58,16 +57,16 @@ export class PerfilComponent {
       error: () => (this.series = []),
     });
 
-    this.socialService.listarResenasUsuario(this.usuarioId).subscribe({
+    this.socialService.listarResenasUsuario(this.userId).subscribe({
       next: (data) => (this.resenas = data),
       error: () => (this.resenas = []),
     });
   }
 
   private cargarFavoritos() {
-    if (!this.usuarioId) return;
+    if (!this.userId) return;
 
-    this.socialService.listarFavoritos(this.usuarioId).subscribe({
+    this.socialService.listarFavoritos(this.userId).subscribe({
       next: (data) => {
         this.favoritos = data.map((favorito) => {
           let titulo = '';
@@ -101,11 +100,11 @@ export class PerfilComponent {
   }
 
   eliminarFavorito(favorito: FavoritoConNombre) {
-    if (!this.usuarioId) return;
+    if (!this.userId) return;
 
     this.socialService
       .toggleFavorito({
-        usuarioId: this.usuarioId,
+        userId: this.userId,
         tipoContenido: favorito.tipoContenido,
         contenidoId: favorito.contenidoId,
       })

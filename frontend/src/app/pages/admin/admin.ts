@@ -25,13 +25,15 @@ interface Serie {
 
 interface Resenas {
   id: number;
-  usuarioId: number;
+  userId: string;
   nombreUsuario: string;
   titulo: string;
   comentario: string;
   tipoContenido: string;
   contenidoId: number;
   fechaCreacion: string;
+  likes: number;
+  dislikes: number;
 }
 
 @Component({
@@ -95,13 +97,15 @@ export class AdminComponent implements OnInit {
       next: (data) => {
         this.resenas = data.map(r => ({
           id: r.id,
-          usuarioId: r.usuarioId,
-          nombreUsuario: r.nombreUsuario,
+          userId: r.userId,
+          nombreUsuario: r.nombreUsuario || 'Usuario',
           titulo: r.titulo,
           comentario: r.comentario,
           tipoContenido: r.tipoContenido,
           contenidoId: r.contenidoId,
-          fechaCreacion: r.fechaCreacion
+          fechaCreacion: r.fechaCreacion,
+          likes: r.likes || 0,
+          dislikes: r.dislikes || 0
         }));
       },
       error: (err) => console.error('Error cargando reseñas:', err)

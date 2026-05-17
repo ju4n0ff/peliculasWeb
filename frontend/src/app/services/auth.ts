@@ -10,12 +10,12 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-login(data: any) {
+  login(data: any) {
     return this.http.post<any>(`${this.API}/login`, data);
   }
 
   register(usuario: any) {
-    return this.http.post<any>(`${this.API}`, usuario);
+    return this.http.post(`${this.API}/registro`, usuario, { responseType: 'text' });
   }
 
   guardarToken(token: string) {
@@ -26,20 +26,19 @@ login(data: any) {
     return localStorage.getItem('token');
   }
 
-  guardarSesion(usuarioId: number, nombreUsuario: string, rol: string) {
-    localStorage.setItem('usuarioId', String(usuarioId));
+  guardarSesion(userId: string, nombreUsuario: string, rol: string) {
+    localStorage.setItem('userId', userId);
     localStorage.setItem('nombreUsuario', nombreUsuario);
     localStorage.setItem('rol', rol);
   }
 
-  obtenerUsuarioId(): number | null {
-    const value = localStorage.getItem('usuarioId');
-    return value ? Number(value) : null;
+  obtenerUserId(): string | null {
+    return localStorage.getItem('userId');
   }
 
-cerrarSesion() {
+  cerrarSesion() {
     localStorage.removeItem('token');
-    localStorage.removeItem('usuarioId');
+    localStorage.removeItem('userId');
     localStorage.removeItem('nombreUsuario');
     localStorage.removeItem('rol');
   }
@@ -50,5 +49,9 @@ cerrarSesion() {
 
   obtenerRol(): string | null {
     return localStorage.getItem('rol');
+  }
+
+  obtenerNombreUsuario(): string | null {
+    return localStorage.getItem('nombreUsuario');
   }
 }

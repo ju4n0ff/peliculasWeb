@@ -26,7 +26,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.videoSrc = this.sanitizer.bypassSecurityTrustResourceUrl(
-      'https://www.youtube.com/embed/rQvIR1oL1vE?autoplay=1&controls=1&showinfo=0&modestbranding=1&rel=0'
+      'https://www.youtube-nocookie.com/embed/i1eJMig5Ik4?autoplay=1&controls=1&modestbranding=1&rel=0'
     );
 
     this.catalogoService.listarPeliculas().subscribe({

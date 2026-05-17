@@ -1,14 +1,14 @@
 package com.peliculas.backend.model;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(
         name = "favoritos",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_favorito_usuario_contenido", columnNames = {"usuario_id", "tipo_contenido", "contenido_id"})
+                @UniqueConstraint(name = "uk_favorito_usuario_contenido", columnNames = {"user_id", "tipo_contenido", "contenido_id"})
         }
 )
 public class Favorito {
@@ -17,16 +17,15 @@ public class Favorito {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
+    @Column(name = "contenido_id", nullable = false)
+    private Long contenidoId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_contenido", nullable = false)
     private TipoContenido tipoContenido;
 
-    @Column(name = "contenido_id", nullable = false)
-    private Long contenidoId;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
@@ -44,12 +43,12 @@ public class Favorito {
         this.id = id;
     }
 
-    public Usuario getUsuario() {
-        return usuario;
+    public Long getContenidoId() {
+        return contenidoId;
     }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
+    public void setContenidoId(Long contenidoId) {
+        this.contenidoId = contenidoId;
     }
 
     public TipoContenido getTipoContenido() {
@@ -60,12 +59,12 @@ public class Favorito {
         this.tipoContenido = tipoContenido;
     }
 
-    public Long getContenidoId() {
-        return contenidoId;
+    public UUID getUserId() {
+        return userId;
     }
 
-    public void setContenidoId(Long contenidoId) {
-        this.contenidoId = contenidoId;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
     public LocalDateTime getFechaCreacion() {

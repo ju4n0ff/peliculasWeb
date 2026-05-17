@@ -21,16 +21,17 @@ export class LoginComponent {
       email: this.email,
       contrasena: this.contrasena
     }).subscribe({
-      next: (res) => {
+next: (res) => {
         this.authService.guardarToken(res.token);
-        if (res.usuarioId && res.nombreUsuario && res.rol) {
-          this.authService.guardarSesion(res.usuarioId, res.nombreUsuario, res.rol);
+        if (res.userId && res.nombreUsuario && res.rol) {
+          this.authService.guardarSesion(res.userId, res.nombreUsuario, res.rol);
         }
         alert('Login exitoso');
         this.router.navigate(['/perfil']);
       },
-      error: () => {
-        alert('Error en login');
+      error: (err) => {
+        const mensaje = typeof err.error === 'string' ? err.error : 'Error en login';
+        alert(mensaje);
       }
     });
   }

@@ -74,23 +74,20 @@ export class DetalleComponent implements OnInit {
     }
   }
 
-  private cargarSocial() {
+private cargarSocial() {
     const tipoContenido: TipoContenido = this.tipo === 'pelicula' ? 'PELICULA' : 'SERIE';
-    const usuarioId = this.authService.obtenerUsuarioId() ?? undefined;
+    const userId = this.authService.obtenerUserId() ?? undefined;
 
- this.socialService.listarResenas(tipoContenido, this.contenidoId).subscribe({
-  next: (data) => {
-    this.resenas = data.map(r => ({
-      ...r,
-      liked: r.liked ?? false
-    }));
-  },
-  error: () => {
-    this.resenas = [];
-  }
-});
+    this.socialService.listarResenas(tipoContenido, this.contenidoId, userId).subscribe({
+      next: (data) => {
+        this.resenas = data;
+      },
+      error: () => {
+        this.resenas = [];
+      }
+    });
 
-    this.socialService.obtenerResumen(tipoContenido, this.contenidoId, usuarioId).subscribe({
+    this.socialService.obtenerResumen(tipoContenido, this.contenidoId, userId).subscribe({
       next: (data) => {
         this.resumen = data;
         this.miPuntuacion = data.miPuntuacion ?? 5;
@@ -98,8 +95,8 @@ export class DetalleComponent implements OnInit {
       error: () => (this.resumen = null)
     });
 
-    if (usuarioId) {
-      this.socialService.esFavorito(usuarioId, tipoContenido, this.contenidoId).subscribe({
+    if (userId) {
+      this.socialService.esFavorito(userId, tipoContenido, this.contenidoId).subscribe({
         next: (data) => (this.esFavorito = data.favorito),
         error: () => (this.esFavorito = false)
       });
@@ -109,8 +106,8 @@ export class DetalleComponent implements OnInit {
   }
 
   enviarCalificacion() {
-    const usuarioId = this.authService.obtenerUsuarioId();
-    if (!usuarioId) {
+    const userId = this.authService.obtenerUserId();
+    if (!userId) {
       alert('Inicia sesión para calificar');
       return;
     }
@@ -118,7 +115,7 @@ export class DetalleComponent implements OnInit {
     const tipoContenido: TipoContenido = this.tipo === 'pelicula' ? 'PELICULA' : 'SERIE';
 
     this.socialService.calificar({
-      usuarioId,
+      userId,
       tipoContenido,
       contenidoId: this.contenidoId,
       puntuacion: this.miPuntuacion
@@ -129,8 +126,8 @@ export class DetalleComponent implements OnInit {
   }
 
   enviarResena() {
-    const usuarioId = this.authService.obtenerUsuarioId();
-    if (!usuarioId) {
+    const userId = this.authService.obtenerUserId();
+    if (!userId) {
       alert('Inicia sesión para publicar una reseña');
       return;
     }
@@ -143,7 +140,7 @@ export class DetalleComponent implements OnInit {
     const tipoContenido: TipoContenido = this.tipo === 'pelicula' ? 'PELICULA' : 'SERIE';
 
     this.socialService.crearResena({
-      usuarioId,
+      userId,
       tipoContenido,
       contenidoId: this.contenidoId,
       titulo: this.tituloResena.trim(),
@@ -158,9 +155,9 @@ export class DetalleComponent implements OnInit {
     });
   }
 
-  toggleFavorito() {
-    const usuarioId = this.authService.obtenerUsuarioId();
-    if (!usuarioId) {
+toggleFavorito() {
+    const userId = this.authService.obtenerUserId();
+    if (!userId) {
       alert('Inicia sesión para agregar favoritos');
       return;
     }
@@ -168,7 +165,7 @@ export class DetalleComponent implements OnInit {
     const tipoContenido: TipoContenido = this.tipo === 'pelicula' ? 'PELICULA' : 'SERIE';
 
     this.socialService.toggleFavorito({
-      usuarioId,
+      userId,
       tipoContenido,
       contenidoId: this.contenidoId
     }).subscribe({
@@ -177,22 +174,22 @@ export class DetalleComponent implements OnInit {
     });
   }
 
-darLike(resena: Resena) {
-  const usuarioId = this.authService.obtenerUsuarioId();
+  votar(resena: Resena, tipoVoto: 'LIKE' | 'DISLIKE') {
+    const userId = this.authService.obtenerUserId();
 
-  if (!usuarioId) {
-    alert('Inicia sesión para dar like');
-    return;
+    if (!userId) {
+      alert('Inicia sesión para votar');
+      return;
+    }
+
+    this.socialService.votarResena(resena.id, userId, tipoVoto).subscribe({
+      next: (res) => {
+        resena.likes = res.likes;
+        resena.dislikes = res.dislikes;
+        resena.votoActual = res.votoActual;
+      }
+    });
   }
-
-  this.socialService.darLike(resena.id, usuarioId).subscribe({
-   next: (res) => {
-  resena.likes = res.likes;
-  resena.liked = res.liked;
-}
-  
-  });
-}
 
   get titulo(): string {
     return this.pelicula?.titulo || this.serie?.titulo || '';

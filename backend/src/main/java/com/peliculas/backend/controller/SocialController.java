@@ -2,13 +2,13 @@ package com.peliculas.backend.controller;
 
 import com.peliculas.backend.dto.*;
 import com.peliculas.backend.model.Favorito;
-
 import com.peliculas.backend.model.TipoContenido;
 import com.peliculas.backend.service.SocialService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/social")
@@ -25,9 +25,9 @@ public class SocialController {
     public List<ResenaResponse> listarResenas(
             @RequestParam TipoContenido tipoContenido,
             @RequestParam Long contenidoId,
-            @RequestParam(required = false) Long usuarioId) {
+            @RequestParam(required = false) UUID userId) {
 
-        return socialService.listarResenasConLike(tipoContenido, contenidoId, usuarioId);
+        return socialService.listarResenasConLike(tipoContenido, contenidoId, userId);
     }
 
     @PostMapping("/resenas")
@@ -35,25 +35,26 @@ public class SocialController {
         return socialService.crearResena(request);
     }
 
-    @GetMapping("/resenas/usuario/{usuarioId}")
-    public List<ResenaResponse> listarResenasUsuario(@PathVariable Long usuarioId) {
-        return socialService.listarResenasUsuario(usuarioId)
+    @GetMapping("/resenas/usuario/{userId}")
+    public List<ResenaResponse> listarResenasUsuario(@PathVariable UUID userId) {
+        return socialService.listarResenasUsuario(userId)
                 .stream()
                 .map(ResenaResponse::fromEntity)
                 .toList();
     }
 
-    @PostMapping("/resenas/{resenaId}/usuario/{usuarioId}/like")
-    public LikeResponse darLike(
+    @PostMapping("/resenas/{resenaId}/voto")
+    public LikeResponse votar(
             @PathVariable Long resenaId,
-            @PathVariable Long usuarioId) {
+            @RequestParam UUID userId,
+            @RequestParam String tipoVoto) {
 
-        return socialService.darLike(resenaId, usuarioId);
+        return socialService.votarResena(resenaId, userId, tipoVoto);
     }
 
     @DeleteMapping("/resenas/{resenaId}")
-    public void eliminarResena(@PathVariable Long resenaId, @RequestParam Long usuarioId) {
-        socialService.eliminarResena(resenaId, usuarioId);
+    public void eliminarResena(@PathVariable Long resenaId, @RequestParam UUID userId) {
+        socialService.eliminarResena(resenaId, userId);
     }
 
     @DeleteMapping("/resenas/admin/{resenaId}")
@@ -78,8 +79,8 @@ public class SocialController {
     public CalificacionResumenResponse obtenerResumen(
             @RequestParam TipoContenido tipoContenido,
             @RequestParam Long contenidoId,
-            @RequestParam(required = false) Long usuarioId) {
-        return socialService.obtenerResumenCalificacion(tipoContenido, contenidoId, usuarioId);
+            @RequestParam(required = false) UUID userId) {
+        return socialService.obtenerResumenCalificacion(tipoContenido, contenidoId, userId);
     }
 
     @PostMapping("/favoritos/toggle")
@@ -90,16 +91,16 @@ public class SocialController {
 
     @GetMapping("/favoritos")
     public List<Favorito> listarFavoritos(
-            @RequestParam Long usuarioId,
+            @RequestParam UUID userId,
             @RequestParam(required = false) TipoContenido tipoContenido) {
-        return socialService.listarFavoritos(usuarioId, tipoContenido);
+        return socialService.listarFavoritos(userId, tipoContenido);
     }
 
     @GetMapping("/favoritos/existe")
     public Map<String, Boolean> esFavorito(
-            @RequestParam Long usuarioId,
+            @RequestParam UUID userId,
             @RequestParam TipoContenido tipoContenido,
             @RequestParam Long contenidoId) {
-        return Map.of("favorito", socialService.esFavorito(usuarioId, tipoContenido, contenidoId));
+        return Map.of("favorito", socialService.esFavorito(userId, tipoContenido, contenidoId));
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.peliculas.backend.dto.LikeResponse;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class SocialService {
@@ -42,11 +43,12 @@ public class SocialService {
 
     @Transactional
     public ResenaResponse crearResena(ResenaRequest request) {
-        Usuario usuario = buscarUsuario(request.getUsuarioId());
+        Usuario usuario = buscarUsuario(request.getUserId());
         validarContenido(request.getTipoContenido(), request.getContenidoId());
 
         Resena resena = new Resena();
-        resena.setUsuario(usuario);
+        resena.setUserId(usuario.getUserId());
+        resena.setNombreUsuario(usuario.getNombreUsuario());
         resena.setTipoContenido(request.getTipoContenido());
         resena.setContenidoId(request.getContenidoId());
         resena.setTitulo(request.getTitulo());
@@ -60,39 +62,42 @@ public class SocialService {
     public List<ResenaResponse> listarResenasConLike(
             TipoContenido tipoContenido,
             Long contenidoId,
-            Long usuarioId) {
+            UUID userId) {
 
         List<Resena> resenas = resenaRepository
                 .findByTipoContenidoAndContenidoIdOrderByFechaCreacionDesc(tipoContenido, contenidoId);
 
         return resenas.stream().map(resena -> {
-
             ResenaResponse dto = ResenaResponse.fromEntity(resena);
-            boolean liked = false;
+            String votoActual = null;
 
-            if (usuarioId != null) {
-                liked = resenaLikeRepository.existsByUsuario_IdAndResena_Id(usuarioId, resena.getId());
+            if (userId != null) {
+                votoActual = resenaLikeRepository
+                        .findByUserIdAndResena_Id(userId, resena.getId())
+                        .map(ResenaLike::getTipoVoto)
+                        .orElse(null);
             }
 
-            dto.setLiked(liked);
+            dto.setVotoActual(votoActual);
 
             return dto;
         }).toList();
     }
 
-    public List<Resena> listarResenasUsuario(Long usuarioId) {
-        return resenaRepository.findByUsuarioIdOrderByFechaCreacionDesc(usuarioId);
+    public List<Resena> listarResenasUsuario(UUID userId) {
+        return resenaRepository.findByUserIdOrderByFechaCreacionDesc(userId);
     }
 
     @Transactional
-    public void eliminarResena(Long resenaId, Long usuarioId) {
+    public void eliminarResena(Long resenaId, UUID userId) {
         Resena resena = resenaRepository.findById(resenaId)
                 .orElseThrow(() -> new RuntimeException("Resena no encontrada"));
 
-        if (!resena.getUsuario().getId().equals(usuarioId)) {
+        if (!resena.getUserId().equals(userId)) {
             throw new RuntimeException("No puedes eliminar una resena de otro usuario");
         }
 
+        resenaLikeRepository.deleteByResena_Id(resenaId);
         resenaRepository.delete(resena);
     }
 
@@ -100,6 +105,7 @@ public class SocialService {
     public void eliminarResenaAdmin(Long resenaId) {
         Resena resena = resenaRepository.findById(resenaId)
                 .orElseThrow(() -> new RuntimeException("Resena no encontrada"));
+        resenaLikeRepository.deleteByResena_Id(resenaId);
         resenaRepository.delete(resena);
     }
 
@@ -113,32 +119,32 @@ public class SocialService {
             throw new RuntimeException("La puntuacion debe estar entre 1 y 5");
         }
 
-        Usuario usuario = buscarUsuario(request.getUsuarioId());
+        UUID userId = request.getUserId();
         validarContenido(request.getTipoContenido(), request.getContenidoId());
 
         Calificacion calificacion = calificacionRepository
-                .findByUsuarioIdAndTipoContenidoAndContenidoId(usuario.getId(), request.getTipoContenido(),
+                .findByUserIdAndTipoContenidoAndContenidoId(userId, request.getTipoContenido(),
                         request.getContenidoId())
                 .orElseGet(Calificacion::new);
 
-        calificacion.setUsuario(usuario);
+        calificacion.setUserId(userId);
         calificacion.setTipoContenido(request.getTipoContenido());
         calificacion.setContenidoId(request.getContenidoId());
         calificacion.setPuntuacion(request.getPuntuacion());
         calificacionRepository.save(calificacion);
 
-        return obtenerResumenCalificacion(request.getTipoContenido(), request.getContenidoId(), request.getUsuarioId());
+        return obtenerResumenCalificacion(request.getTipoContenido(), request.getContenidoId(), request.getUserId());
     }
 
     public CalificacionResumenResponse obtenerResumenCalificacion(TipoContenido tipoContenido, Long contenidoId,
-            Long usuarioId) {
+            UUID userId) {
         Double promedio = calificacionRepository.calcularPromedio(tipoContenido, contenidoId);
         long total = calificacionRepository.countByTipoContenidoAndContenidoId(tipoContenido, contenidoId);
         Integer miPuntuacion = null;
 
-        if (usuarioId != null) {
+        if (userId != null) {
             miPuntuacion = calificacionRepository
-                    .findPuntuacionByUsuario(usuarioId, tipoContenido, contenidoId)
+                    .findPuntuacionByUsuario(userId, tipoContenido, contenidoId)
                     .orElse(null);
         }
 
@@ -147,11 +153,11 @@ public class SocialService {
 
     @Transactional
     public boolean alternarFavorito(FavoritoRequest request) {
-        Usuario usuario = buscarUsuario(request.getUsuarioId());
+        UUID userId = request.getUserId();
         validarContenido(request.getTipoContenido(), request.getContenidoId());
 
         Favorito existente = favoritoRepository
-                .findByUsuarioIdAndTipoContenidoAndContenidoId(usuario.getId(), request.getTipoContenido(),
+                .findByUserIdAndTipoContenidoAndContenidoId(userId, request.getTipoContenido(),
                         request.getContenidoId())
                 .orElse(null);
 
@@ -161,67 +167,88 @@ public class SocialService {
         }
 
         Favorito favorito = new Favorito();
-        favorito.setUsuario(usuario);
+        favorito.setUserId(userId);
         favorito.setTipoContenido(request.getTipoContenido());
         favorito.setContenidoId(request.getContenidoId());
         favoritoRepository.save(favorito);
         return true;
     }
 
-    public List<Favorito> listarFavoritos(Long usuarioId, TipoContenido tipoContenido) {
+    public List<Favorito> listarFavoritos(UUID userId, TipoContenido tipoContenido) {
         if (tipoContenido == null) {
-            return favoritoRepository.findByUsuarioIdOrderByFechaCreacionDesc(usuarioId);
+            return favoritoRepository.findByUserIdOrderByFechaCreacionDesc(userId);
         }
-        return favoritoRepository.findByUsuarioIdAndTipoContenidoOrderByFechaCreacionDesc(usuarioId, tipoContenido);
+        return favoritoRepository.findByUserIdAndTipoContenidoOrderByFechaCreacionDesc(userId, tipoContenido);
     }
 
-    public boolean esFavorito(Long usuarioId, TipoContenido tipoContenido, Long contenidoId) {
+    public boolean esFavorito(UUID userId, TipoContenido tipoContenido, Long contenidoId) {
         return favoritoRepository
-                .findByUsuarioIdAndTipoContenidoAndContenidoId(usuarioId, tipoContenido, contenidoId)
+                .findByUserIdAndTipoContenidoAndContenidoId(userId, tipoContenido, contenidoId)
                 .isPresent();
     }
 
     @Transactional
-    public LikeResponse darLike(Long resenaId, Long usuarioId) {
+    public LikeResponse votarResena(Long resenaId, UUID userId, String tipoVoto) {
+        String voto = tipoVoto == null ? "" : tipoVoto.trim().toUpperCase();
+
+        if (!"LIKE".equals(voto) && !"DISLIKE".equals(voto)) {
+            throw new RuntimeException("tipoVoto debe ser LIKE o DISLIKE");
+        }
 
         Resena resena = resenaRepository.findById(resenaId)
                 .orElseThrow(() -> new RuntimeException("Reseña no encontrada"));
 
-        boolean yaExiste = resenaLikeRepository
-                .existsByUsuario_IdAndResena_Id(usuarioId, resenaId);
+        var votoExistente = resenaLikeRepository.findByUserIdAndResena_Id(userId, resenaId);
 
-        if (yaExiste) {
+        String votoAnterior = votoExistente.map(ResenaLike::getTipoVoto).orElse(null);
 
-            ResenaLike like = resenaLikeRepository
-                    .findByUsuario_IdAndResena_Id(usuarioId, resenaId);
+        if (votoAnterior != null) {
+            if (votoAnterior.equals(voto)) {
+                resenaLikeRepository.delete(votoExistente.get());
 
-            if (like != null) {
-                resenaLikeRepository.delete(like);
+                if ("LIKE".equals(voto)) {
+                    resena.setLikes(Math.max(0, resena.getLikes() - 1));
+                } else {
+                    resena.setDislikes(Math.max(0, resena.getDislikes() - 1));
+                }
+            } else {
+                ResenaLike like = votoExistente.get();
+                like.setTipoVoto(voto);
+                resenaLikeRepository.save(like);
+
+                if ("LIKE".equals(voto)) {
+                    resena.setLikes(resena.getLikes() + 1);
+                    resena.setDislikes(Math.max(0, resena.getDislikes() - 1));
+                } else {
+                    resena.setDislikes(resena.getDislikes() + 1);
+                    resena.setLikes(Math.max(0, resena.getLikes() - 1));
+                }
             }
-
-            resena.setLikes(Math.max(0, resena.getLikes() - 1));
-
         } else {
+            ResenaLike nuevoVoto = new ResenaLike();
+            nuevoVoto.setResena(resena);
+            nuevoVoto.setUserId(userId);
+            nuevoVoto.setTipoVoto(voto);
+            resenaLikeRepository.save(nuevoVoto);
 
-            Usuario usuario = usuarioRepository.findById(usuarioId)
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-            ResenaLike like = new ResenaLike();
-            like.setUsuario(usuario);
-            like.setResena(resena);
-
-            resenaLikeRepository.save(like);
-
-            resena.setLikes(resena.getLikes() + 1);
+            if ("LIKE".equals(voto)) {
+                resena.setLikes(resena.getLikes() + 1);
+            } else {
+                resena.setDislikes(resena.getDislikes() + 1);
+            }
         }
 
         resenaRepository.save(resena);
 
-        return new LikeResponse(resena.getLikes(), !yaExiste);
+        String nuevoVotoActual = resenaLikeRepository.findByUserIdAndResena_Id(userId, resenaId)
+                .map(ResenaLike::getTipoVoto)
+                .orElse(null);
+
+        return new LikeResponse(resena.getLikes(), resena.getDislikes(), nuevoVotoActual);
     }
 
-    private Usuario buscarUsuario(Long usuarioId) {
-        return usuarioRepository.findById(usuarioId)
+    private Usuario buscarUsuario(UUID userId) {
+        return usuarioRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 

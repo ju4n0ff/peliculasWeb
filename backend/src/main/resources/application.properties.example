@@ -1,7 +1,7 @@
 spring.application.name=backend
-spring.datasource.url=jdbc:postgresql://aws-1-sa-east-1.pooler.supabase.com:5432/postgres
-spring.datasource.username=postgres.qjpcqprzhglmqcimjhic
-spring.datasource.password=ipBYFHrUNlMRoyCB
+spring.datasource.url=jdbc:postgresql://HOST:PORT/DATABASE
+spring.datasource.username=TU_USUARIO_DB
+spring.datasource.password=TU_PASSWORD_DB
 spring.datasource.driver-class-name=org.postgresql.Driver
 
 spring.jpa.show-sql=true
@@ -10,3 +10,5 @@ spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 
 app.security.enabled=false
 
+supabase.url=https://TU_PROYECTO.supabase.co
+supabase.key=TU_SUPABASE_PUBLISHABLE_OR_ANON_KEY

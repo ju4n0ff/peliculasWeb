@@ -528,6 +528,13 @@
   box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
 }
 
+.btn-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+  box-shadow: none;
+}
+
 .modal-footer-text {
   text-align: center;
   color: #777;

@@ -158,7 +158,9 @@
       <p class="error-msg" *ngIf="regError">{{ regError }}</p>
       <p class="success-msg" *ngIf="regSuccess">{{ regSuccess }}</p>
 
-      <button type="submit" class="btn-submit">Crear Cuenta</button>
+      <button type="submit" class="btn-submit" [disabled]="registrando || !!regSuccess">
+        {{ registrando ? 'Creando cuenta...' : 'Crear Cuenta' }}
+      </button>
     </form>
 
     <p class="modal-footer-text">

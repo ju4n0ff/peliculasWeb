@@ -1,18 +1,19 @@
 package com.peliculas.backend.dto;
 
 import com.peliculas.backend.model.TipoContenido;
+import java.util.UUID;
 
 public class FavoritoRequest {
-    private Long usuarioId;
+    private UUID userId;
     private TipoContenido tipoContenido;
     private Long contenidoId;
 
-    public Long getUsuarioId() {
-        return usuarioId;
+    public UUID getUserId() {
+        return userId;
     }
 
-    public void setUsuarioId(Long usuarioId) {
-        this.usuarioId = usuarioId;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
     public TipoContenido getTipoContenido() {

@@ -46,6 +46,7 @@ export class HeaderComponent implements OnInit {
   regCelular = '';
   regError = '';
   regSuccess = '';
+  registrando = false;
 
   constructor(
     private authService: AuthService, 
@@ -158,16 +159,16 @@ export class HeaderComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         this.authService.guardarToken(res.token);
-        if (res.usuarioId && res.nombreUsuario && res.rol) {
-          this.authService.guardarSesion(res.usuarioId, res.nombreUsuario, res.rol);
+        if (res.userId && res.nombreUsuario && res.rol) {
+          this.authService.guardarSesion(res.userId, res.nombreUsuario, res.rol);
         }
         this.isLoggedIn = true;
         this.userName = res.nombreUsuario;
         this.cerrarLogin();
         this.router.navigate(['/perfil']);
       },
-      error: () => {
-        this.loginError = 'Email o contraseña incorrectos';
+      error: (err) => {
+        this.loginError = typeof err.error === 'string' ? err.error : 'Email o contraseña incorrectos';
       }
     });
   }
@@ -185,6 +186,10 @@ export class HeaderComponent implements OnInit {
       return;
     }
 
+    this.regError = '';
+    this.regSuccess = '';
+    this.registrando = true;
+
     const usuario = {
       nombres: this.regNombres,
       apellidos: this.regApellidos,
@@ -196,15 +201,14 @@ export class HeaderComponent implements OnInit {
     };
 
     this.authService.register(usuario).subscribe({
-      next: () => {
-        this.regSuccess = '¡Registro exitoso! Ahora puedes iniciar sesión.';
-        setTimeout(() => {
-          this.cerrarRegistro();
-          this.abrirLogin();
-        }, 2000);
+      next: (mensaje) => {
+        this.registrando = false;
+        this.regSuccess = mensaje || 'Usuario registrado. Revisa tu correo electrónico para verificar la cuenta antes de iniciar sesión.';
+        this.regContrasena = '';
       },
-      error: () => {
-        this.regError = 'El email o nombre de usuario ya existen';
+      error: (err) => {
+        this.registrando = false;
+        this.regError = typeof err.error === 'string' ? err.error : 'El email o nombre de usuario ya existen';
       }
     });
   }

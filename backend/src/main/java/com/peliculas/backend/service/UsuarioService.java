@@ -1,27 +1,44 @@
 package com.peliculas.backend.service;
 
+import com.peliculas.backend.model.Resena;
+import com.peliculas.backend.model.ResenaLike;
 import com.peliculas.backend.model.Usuario;
+import com.peliculas.backend.repository.CalificacionRepository;
+import com.peliculas.backend.repository.FavoritoRepository;
+import com.peliculas.backend.repository.ResenaLikeRepository;
+import com.peliculas.backend.repository.ResenaRepository;
 import com.peliculas.backend.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
-
-
+import java.util.UUID;
 
 @Service
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ResenaLikeRepository resenaLikeRepository;
+    private final ResenaRepository resenaRepository;
+    private final FavoritoRepository favoritoRepository;
+    private final CalificacionRepository calificacionRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioService(
+            UsuarioRepository usuarioRepository,
+            PasswordEncoder passwordEncoder,
+            ResenaLikeRepository resenaLikeRepository,
+            ResenaRepository resenaRepository,
+            FavoritoRepository favoritoRepository,
+            CalificacionRepository calificacionRepository) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.resenaLikeRepository = resenaLikeRepository;
+        this.resenaRepository = resenaRepository;
+        this.favoritoRepository = favoritoRepository;
+        this.calificacionRepository = calificacionRepository;
     }
-    
 
     public Usuario guardar(Usuario usuario) {
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
@@ -32,25 +49,46 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
-    public Optional<Usuario> buscarPorId(Long id) {
-        return usuarioRepository.findById(id);
+    public Optional<Usuario> buscarPorId(UUID userId) {
+        return usuarioRepository.findByUserId(userId);
     }
 
-    public void eliminar(Long id) {
-        usuarioRepository.deleteById(id);
-    }
-
-    public Usuario actualizar(Long id, Usuario usuario) {
-        Usuario existente = usuarioRepository.findById(id)
+    @Transactional
+    public void eliminar(UUID userId) {
+        Usuario usuario = usuarioRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Validar email único (si cambia)
+        List<ResenaLike> votosDelUsuario = resenaLikeRepository.findAllByUserIdWithResena(userId);
+        for (ResenaLike voto : votosDelUsuario) {
+            Resena resena = voto.getResena();
+            if (resena.getUserId().equals(userId)) {
+                continue;
+            }
+
+            if ("LIKE".equals(voto.getTipoVoto())) {
+                resena.setLikes(Math.max(0, resena.getLikes() - 1));
+            } else if ("DISLIKE".equals(voto.getTipoVoto())) {
+                resena.setDislikes(Math.max(0, resena.getDislikes() - 1));
+            }
+        }
+
+        resenaLikeRepository.deleteAll(votosDelUsuario);
+        resenaLikeRepository.deleteByResenaUserId(userId);
+        resenaRepository.deleteByUserId(userId);
+        favoritoRepository.deleteByUserId(userId);
+        calificacionRepository.deleteByUserId(userId);
+        usuarioRepository.delete(usuario);
+    }
+
+    public Usuario actualizar(UUID userId, Usuario usuario) {
+        Usuario existente = usuarioRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
         if (!existente.getEmail().equals(usuario.getEmail()) &&
             usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
             throw new RuntimeException("El email ya está en uso");
         }
 
-        // Validar username único
         if (!existente.getNombreUsuario().equals(usuario.getNombreUsuario()) &&
             usuarioRepository.findByNombreUsuario(usuario.getNombreUsuario()).isPresent()) {
             throw new RuntimeException("El username ya existe");
@@ -64,7 +102,7 @@ public class UsuarioService {
         existente.setRol(usuario.getRol());
 
         return usuarioRepository.save(existente);
-}
+    }
 
     public Optional<Usuario> buscarPorUsername(String nombreUsuario) {
         return usuarioRepository.findByNombreUsuario(nombreUsuario);
@@ -82,7 +120,6 @@ public class UsuarioService {
            throw new RuntimeException("Contraseña incorrecta");
         }
 
-        // actualizar último acceso
         usuario.setUltimoAcceso(java.time.LocalDateTime.now());
 
         return usuarioRepository.save(usuario);

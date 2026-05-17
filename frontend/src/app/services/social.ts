@@ -6,20 +6,26 @@ export type TipoContenido = 'PELICULA' | 'SERIE';
 
 export interface Resena {
   id: number;
-  usuarioId: number;
+  userId: string;
   nombreUsuario: string;
   titulo: string;
   comentario: string;
   fechaCreacion: string;
   likes: number;
-  liked: boolean;
+  dislikes: number;
+  votoActual: string | null;
 }
 
 export interface CalificacionResumen {
   promedio: number;
   total: number;
   miPuntuacion: number | null;
-    likes: number;
+}
+
+export interface LikeResponse {
+  likes: number;
+  dislikes: number;
+  votoActual: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -28,21 +34,28 @@ export class SocialService {
 
   constructor(private http: HttpClient) {}
 
-  listarResenas(tipoContenido: TipoContenido, contenidoId: number): Observable<Resena[]> {
-    const params = new HttpParams()
+  listarResenas(tipoContenido: TipoContenido, contenidoId: number, userId?: string): Observable<Resena[]> {
+    let params = new HttpParams()
       .set('tipoContenido', tipoContenido)
       .set('contenidoId', contenidoId);
+
+    if (userId) {
+      params = params.set('userId', userId);
+    }
+
     return this.http.get<Resena[]>(`${this.api}/resenas`, { params });
   }
-darLike(resenaId: number, usuarioId: number) {
-  return this.http.post<{ likes: number; liked: boolean }>(
-    `${this.api}/resenas/${resenaId}/usuario/${usuarioId}/like`,
-    {}
-  );
-}
+
+  votarResena(resenaId: number, userId: string, tipoVoto: 'LIKE' | 'DISLIKE'): Observable<LikeResponse> {
+    const params = new HttpParams()
+      .set('userId', userId)
+      .set('tipoVoto', tipoVoto);
+
+    return this.http.post<LikeResponse>(`${this.api}/resenas/${resenaId}/voto`, {}, { params });
+  }
 
   crearResena(payload: {
-    usuarioId: number;
+    userId: string;
     tipoContenido: TipoContenido;
     contenidoId: number;
     titulo: string;
@@ -51,12 +64,12 @@ darLike(resenaId: number, usuarioId: number) {
     return this.http.post<Resena>(`${this.api}/resenas`, payload);
   }
 
-  listarResenasUsuario(usuarioId: number): Observable<Resena[]> {
-    return this.http.get<Resena[]>(`${this.api}/resenas/usuario/${usuarioId}`);
+  listarResenasUsuario(userId: string): Observable<Resena[]> {
+    return this.http.get<Resena[]>(`${this.api}/resenas/usuario/${userId}`);
   }
 
   calificar(payload: {
-    usuarioId: number;
+    userId: string;
     tipoContenido: TipoContenido;
     contenidoId: number;
     puntuacion: number;
@@ -67,37 +80,37 @@ darLike(resenaId: number, usuarioId: number) {
   obtenerResumen(
     tipoContenido: TipoContenido,
     contenidoId: number,
-    usuarioId?: number
+    userId?: string
   ): Observable<CalificacionResumen> {
     let params = new HttpParams()
       .set('tipoContenido', tipoContenido)
       .set('contenidoId', contenidoId);
 
-    if (usuarioId) {
-      params = params.set('usuarioId', usuarioId);
+    if (userId) {
+      params = params.set('userId', userId);
     }
 
     return this.http.get<CalificacionResumen>(`${this.api}/calificaciones/resumen`, { params });
   }
 
   toggleFavorito(payload: {
-    usuarioId: number;
+    userId: string;
     tipoContenido: TipoContenido;
     contenidoId: number;
   }): Observable<{ favorito: boolean }> {
     return this.http.post<{ favorito: boolean }>(`${this.api}/favoritos/toggle`, payload);
   }
 
-  esFavorito(usuarioId: number, tipoContenido: TipoContenido, contenidoId: number): Observable<{ favorito: boolean }> {
+  esFavorito(userId: string, tipoContenido: TipoContenido, contenidoId: number): Observable<{ favorito: boolean }> {
     const params = new HttpParams()
-      .set('usuarioId', usuarioId)
+      .set('userId', userId)
       .set('tipoContenido', tipoContenido)
       .set('contenidoId', contenidoId);
     return this.http.get<{ favorito: boolean }>(`${this.api}/favoritos/existe`, { params });
   }
 
-  listarFavoritos(usuarioId: number, tipoContenido?: TipoContenido): Observable<Array<{ id: number; tipoContenido: TipoContenido; contenidoId: number }>> {
-    let params = new HttpParams().set('usuarioId', usuarioId);
+  listarFavoritos(userId: string, tipoContenido?: TipoContenido): Observable<Array<{ id: number; tipoContenido: TipoContenido; contenidoId: number }>> {
+    let params = new HttpParams().set('userId', userId);
     if (tipoContenido) {
       params = params.set('tipoContenido', tipoContenido);
     }

@@ -81,10 +81,16 @@
 
         
 
-<button class="like-btn" (click)="darLike(resena)">
-  <span class="heart">❤️</span>
-  <span>{{ resena.likes }}</span>
-</button>
+        <div class="votos-resena">
+          <button class="like-btn" (click)="votar(resena, 'LIKE')">
+            <span class="like-icon" [class.liked]="resena.votoActual === 'LIKE'">👍</span>
+            <span>{{ resena.likes }}</span>
+          </button>
+          <button class="like-btn dislike-btn" (click)="votar(resena, 'DISLIKE')">
+            <span class="dislike" [class.disliked]="resena.votoActual === 'DISLIKE'">👎</span>
+            <span>{{ resena.dislikes }}</span>
+          </button>
+        </div>
       </div>
       
 

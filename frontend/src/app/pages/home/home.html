@@ -5,7 +5,7 @@
       <iframe
         id="trailer-iframe"
         [src]="videoSrc"
-        title="Tráiler principal"
+        title="Tráiler de BoJack Horseman - Netflix"
         frameborder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerpolicy="strict-origin-when-cross-origin"
@@ -15,8 +15,8 @@
 
     <div class="thumbnail-overlay" [class.hidden]="videoPlaying">
       <img
-        src="https://img.youtube.com/vi/rQvIR1oL1vE/maxresdefault.jpg"
-        alt="Thumbnail"
+        src="https://img.youtube.com/vi/i1eJMig5Ik4/maxresdefault.jpg"
+        alt="BoJack Horseman"
         class="thumbnail-img"
         (error)="thumbnailError = true">
       <div class="thumbnail-fallback" *ngIf="thumbnailError">
@@ -24,8 +24,8 @@
       </div>
       <div class="thumbnail-gradient"></div>
       <div class="banner-info">
-        <h2>Serie Destacada</h2>
-        <p>Ellie y Abby se enfrentan por venganza en un mundo roto.</p>
+        <h2>BoJack Horseman</h2>
+        <p>Un actor olvidado de una sitcom de los 90 intenta recuperar su lugar en Hollywood mientras enfrenta fama, culpa y relaciones rotas.</p>
         <div class="banner-buttons">
           <button class="btn-trailer" (click)="playVideo()">▶ Ver Tráiler</button>
           <button class="btn-info" [routerLink]="['/detalle', 'serie', '2-bojack-horseman']">+ Información</button>

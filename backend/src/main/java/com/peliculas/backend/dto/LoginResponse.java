@@ -1,14 +1,16 @@
 package com.peliculas.backend.dto;
 
+import java.util.UUID;
+
 public class LoginResponse {
     private String token;
-    private Long usuarioId;
+    private UUID userId;
     private String nombreUsuario;
     private String rol;
 
-    public LoginResponse(String token, Long usuarioId, String nombreUsuario, String rol) {
+    public LoginResponse(String token, UUID userId, String nombreUsuario, String rol) {
         this.token = token;
-        this.usuarioId = usuarioId;
+        this.userId = userId;
         this.nombreUsuario = nombreUsuario;
         this.rol = rol;
     }
@@ -17,8 +19,8 @@ public class LoginResponse {
         return token;
     }
 
-    public Long getUsuarioId() {
-        return usuarioId;
+    public UUID getUserId() {
+        return userId;
     }
 
     public String getNombreUsuario() {
