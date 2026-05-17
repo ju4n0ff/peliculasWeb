@@ -6,26 +6,26 @@
 
   <!-- Tabs de navegación -->
   <div class="admin-tabs">
-    <button 
-      class="tab-btn" 
+    <button
+      class="tab-btn"
       [class.active]="tabActual === 'peliculas'"
       (click)="cambiarTab('peliculas')"
     >
-      🎬 Películas
+      <img src="/Pelicula.avif" alt="Peliculas" class="tab-icon"> Películas
     </button>
-    <button 
-      class="tab-btn" 
+    <button
+      class="tab-btn"
       [class.active]="tabActual === 'series'"
       (click)="cambiarTab('series')"
     >
-      📺 Series
+      <img src="/Serie.avif" alt="Series" class="tab-icon"> Series
     </button>
-    <button 
-      class="tab-btn" 
+    <button
+      class="tab-btn"
       [class.active]="tabActual === 'resenas'"
       (click)="cambiarTab('resenas')"
     >
-      📝 Reseñas
+      <img src="/reseñas.avif" alt="Reseñas" class="tab-icon"> Reseñas
     </button>
   </div>
 
@@ -47,16 +47,24 @@
       <h3>Películas Existentes ({{ peliculas.length }})</h3>
       <div class="item-list">
         <div class="item-card" *ngFor="let pelicula of peliculas">
-          <img [src]="pelicula.imagenUrl || 'https://via.placeholder.com/100x150'" class="item-thumb">
+          <a [routerLink]="['/detalle', 'pelicula', pelicula.id]" class="item-link">
+            <img [src]="pelicula.imagenUrl || 'https://via.placeholder.com/100x150'" class="item-thumb">
+          </a>
           
           <ng-container *ngIf="editandoPeliculaId !== pelicula.id">
             <div class="item-info">
-              <strong>{{ pelicula.titulo }}</strong>
+              <a [routerLink]="['/detalle', 'pelicula', pelicula.id]" class="item-link-text">
+                <strong>{{ pelicula.titulo }}</strong>
+              </a>
               <span>{{ pelicula.genero }} | {{ pelicula.anio }}</span>
             </div>
             <div class="item-actions">
-              <button class="btn-edit" (click)="iniciarEdicionPelicula(pelicula)">✏️ Editar</button>
-              <button class="btn-delete" (click)="eliminarPelicula(pelicula.id)">🗑️ Eliminar</button>
+              <button class="btn-edit" (click)="iniciarEdicionPelicula(pelicula)">
+                <img src="/editar.avif" alt="Editar" class="btn-icon"> Editar
+              </button>
+              <button class="btn-delete" (click)="eliminarPelicula(pelicula.id)">
+                <img src="/eliminar.avif" alt="Eliminar" class="btn-icon"> Eliminar
+              </button>
             </div>
           </ng-container>
           
@@ -97,16 +105,24 @@
       <h3>Series Existentes ({{ series.length }})</h3>
       <div class="item-list">
         <div class="item-card" *ngFor="let serie of series">
-          <img [src]="serie.imagenUrl || 'https://via.placeholder.com/100x150'" class="item-thumb">
+          <a [routerLink]="['/detalle', 'serie', serie.id]" class="item-link">
+            <img [src]="serie.imagenUrl || 'https://via.placeholder.com/100x150'" class="item-thumb">
+          </a>
           
           <ng-container *ngIf="editandoSerieId !== serie.id">
             <div class="item-info">
-              <strong>{{ serie.titulo }}</strong>
+              <a [routerLink]="['/detalle', 'serie', serie.id]" class="item-link-text">
+                <strong>{{ serie.titulo }}</strong>
+              </a>
               <span>{{ serie.genero }} | {{ serie.anio }} | {{ serie.temporadas }} temp.</span>
             </div>
             <div class="item-actions">
-              <button class="btn-edit" (click)="iniciarEdicionSerie(serie)">✏️ Editar</button>
-              <button class="btn-delete" (click)="eliminarSerie(serie.id)">🗑️ Eliminar</button>
+              <button class="btn-edit" (click)="iniciarEdicionSerie(serie)">
+                <img src="/editar.avif" alt="Editar" class="btn-icon"> Editar
+              </button>
+              <button class="btn-delete" (click)="eliminarSerie(serie.id)">
+                <img src="/eliminar.avif" alt="Eliminar" class="btn-icon"> Eliminar
+              </button>
             </div>
           </ng-container>
           
@@ -140,15 +156,19 @@
               <strong class="resena-title">{{ resena.titulo }}</strong>
               <span class="resena-meta">
                 {{ resena.nombreUsuario }} | 
-                {{ resena.tipoContenido === 'PELICULA' ? '🎬' : '📺' }} 
-                {{ getContenidoTitulo(resena) }} | 
+                <img [src]="resena.tipoContenido === 'PELICULA' ? '/Pelicula.avif' : '/Serie.avif'" class="content-icon" alt=""> 
+                <a [routerLink]="['/detalle', resena.tipoContenido === 'PELICULA' ? 'pelicula' : 'serie', resena.contenidoId]">
+                  {{ getContenidoTitulo(resena) }}
+                </a> | 
                 {{ resena.fechaCreacion | date:'dd/MM/yyyy' }}
               </span>
             </div>
             <p class="resena-body">{{ resena.comentario }}</p>
           </div>
           <div class="item-actions">
-            <button class="btn-delete" (click)="eliminarResena(resena.id)">🗑️ Eliminar</button>
+            <button class="btn-delete" (click)="eliminarResena(resena.id)">
+              <img src="/eliminar.avif" alt="Eliminar" class="btn-icon"> Eliminar
+            </button>
           </div>
         </div>
         

@@ -23,6 +23,9 @@
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 26px;
   color: #e50914;
   text-decoration: none;
@@ -34,6 +37,19 @@
 
 .logo:hover {
   transform: scale(1.05);
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+}
+
+.logo-text {
+  color: #fff;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  font-family: 'Arial Black', sans-serif;
 }
 
 .menu {
@@ -202,7 +218,9 @@
 }
 
 .sugerencia-icon {
-  font-size: 16px;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .sugerencia-text {

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { SocialService, Resena } from '../../services/social';
 import { CatalogoService, Pelicula, Serie } from '../../services/catalogo';
@@ -15,7 +16,7 @@ interface FavoritoConNombre {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './perfil.html',
   styleUrl: './perfil.css',
 })

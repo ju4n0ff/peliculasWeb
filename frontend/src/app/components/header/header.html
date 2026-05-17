@@ -1,6 +1,9 @@
 <header class="header">
   <div class="header-left">
-    <a routerLink="/home" class="logo">CineScope</a>
+    <a routerLink="/home" class="logo">
+      <img src="/logo.avif" alt="CineScope" class="logo-img">
+      <span class="logo-text">CineScope</span>
+    </a>
     <nav class="menu">
       <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Inicio</a>
       <a routerLink="/peliculas" routerLinkActive="active">Películas</a>
@@ -47,7 +50,7 @@
           *ngFor="let resultado of resultados"
           (click)="irADetalle(resultado)"
         >
-          <span class="sugerencia-icon">{{ resultado.tipo === 'pelicula' ? '🎬' : '📺' }}</span>
+          <img [src]="resultado.tipo === 'pelicula' ? '/Pelicula.avif' : '/Serie.avif'" class="sugerencia-icon" alt="">
           <span class="sugerencia-text">{{ resultado.titulo }}</span>
           <span class="sugerencia-type">{{ resultado.tipo === 'pelicula' ? 'Película' : 'Serie' }}</span>
         </div>
