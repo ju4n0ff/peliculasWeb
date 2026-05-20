@@ -553,6 +553,36 @@
   box-shadow: none;
 }
 
+.reenviar-link {
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+
+.reenviar-link span {
+  color: #e50914;
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.reenviar-link span:hover {
+  text-decoration: underline;
+}
+
+.reenviar-link span.disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.reenviar-link span.disabled:hover {
+  text-decoration: none;
+}
+
+.reenviar-contador {
+  color: #888 !important;
+  font-size: 12px !important;
+}
+
 .modal-footer-text {
   text-align: center;
   color: #777;

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './guards/admin.guard';
 import { LoginComponent } from './pages/login/login';
 import { HomeComponent } from './pages/home/home';
 import { PeliculasComponent } from './pages/peliculas/peliculas';
@@ -21,7 +22,7 @@ export const routes: Routes = [
   { path: 'contactos', component: ContactosComponent },
   { path: 'nosotros', component: NosotrosComponent },
   { path: 'perfil', component: PerfilComponent },
-  { path: 'admin', component: AdminComponent },
+  { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
   { path: 'detalle/:tipo/:slug', component: DetalleComponent },
   { path: 'terminos', component: TerminosComponent },
   { path: 'privacidad', component: PrivacidadComponent },

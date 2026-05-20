@@ -85,7 +85,7 @@
 </header>
 
 <!-- Modal de Login -->
-<div class="modal-overlay" [class.show]="showLoginModal" (click)="cerrarLogin()">
+<div class="modal-overlay" [class.show]="showLoginModal">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <button class="modal-close" (click)="cerrarLogin()">&times;</button>
     
@@ -107,7 +107,17 @@
 
       <p class="error-msg" *ngIf="loginError">{{ loginError }}</p>
 
-      <button type="submit" class="btn-submit">Iniciar Sesión</button>
+      <p *ngIf="mostrarBotonReenviar" class="reenviar-link">
+        <span 
+          *ngIf="!reenviando && reenviarContador === 0" 
+          (click)="reenviarVerificacion()"
+          [class.disabled]="reenviarContador > 0"
+        >Reenviar correo de verificación</span>
+        <span *ngIf="reenviando">Reenviando...</span>
+        <span *ngIf="reenviarContador > 0" class="reenviar-contador">Espera {{ reenviarContador }}s</span>
+      </p>
+
+      <button type="submit" class="btn-submit" [disabled]="mostrarBotonReenviar">Iniciar Sesión</button>
     </form>
 
     <p class="modal-footer-text">
@@ -117,7 +127,7 @@
 </div>
 
 <!-- Modal de Registro -->
-<div class="modal-overlay" [class.show]="showRegisterModal" (click)="cerrarRegistro()">
+<div class="modal-overlay" [class.show]="showRegisterModal">
   <div class="modal-content modal-content-register" (click)="$event.stopPropagation()">
     <button class="modal-close" (click)="cerrarRegistro()">&times;</button>
     

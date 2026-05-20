@@ -36,6 +36,10 @@ export class HeaderComponent implements OnInit {
   loginEmail = '';
   loginContrasena = '';
   loginError = '';
+  mostrarBotonReenviar = false;
+  reenviando = false;
+  reenviarContador = 0;
+  intervaloReenviar: any;
 
   // Register fields
   regNombres = '';
@@ -124,6 +128,7 @@ export class HeaderComponent implements OnInit {
     this.loginEmail = '';
     this.loginContrasena = '';
     this.loginError = '';
+    this.mostrarBotonReenviar = false;
     this.showLoginModal = true;
   }
 
@@ -141,6 +146,10 @@ export class HeaderComponent implements OnInit {
 
   cerrarLogin() {
     this.showLoginModal = false;
+    if (this.intervaloReenviar) {
+      clearInterval(this.intervaloReenviar);
+      this.reenviarContador = 0;
+    }
   }
 
   cerrarRegistro() {
@@ -167,8 +176,59 @@ export class HeaderComponent implements OnInit {
         this.cerrarLogin();
         this.router.navigate(['/perfil']);
       },
+error: (err) => {
+        const errorMsg = typeof err.error === 'string' ? err.error : 'Email o contraseña incorrectos';
+        this.loginError = errorMsg;
+        if (errorMsg.includes('verificar')) {
+          this.mostrarBotonReenviar = true;
+        } else {
+          this.mostrarBotonReenviar = false;
+        }
+      }
+    });
+  }
+
+  reenviarVerificacion() {
+    if (!this.loginEmail) {
+      this.loginError = 'Ingresa tu email para reenviar la verificación';
+      return;
+    }
+
+    if (this.reenviarContador > 0) {
+      return;
+    }
+
+    this.reenviando = true;
+    this.authService.reenviarVerificacion(this.loginEmail).subscribe({
+      next: (mensaje) => {
+        this.reenviando = false;
+        this.loginError = mensaje;
+        this.mostrarBotonReenviar = false;
+      },
       error: (err) => {
-        this.loginError = typeof err.error === 'string' ? err.error : 'Email o contraseña incorrectos';
+        this.reenviando = false;
+        const errorMsg = typeof err.error === 'string' ? err.error : 'Error al reenviar el correo';
+        
+        if (err.status === 429 || errorMsg.includes('rate_limit')) {
+          this.reenviarContador = 25;
+          this.loginError = `Espera ${this.reenviarContador} segundos para reenviar nuevamente`;
+          
+          if (this.intervaloReenviar) {
+            clearInterval(this.intervaloReenviar);
+          }
+          
+          this.intervaloReenviar = setInterval(() => {
+            this.reenviarContador--;
+            if (this.reenviarContador > 0) {
+              this.loginError = `Espera ${this.reenviarContador} segundos para reenviar nuevamente`;
+            } else {
+              clearInterval(this.intervaloReenviar);
+              this.loginError = 'Debes verificar tu correo antes de iniciar sesion';
+            }
+          }, 1000);
+        } else {
+          this.loginError = errorMsg;
+        }
       }
     });
   }
