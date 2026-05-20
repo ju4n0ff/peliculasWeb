@@ -10,14 +10,18 @@
     <ul *ngIf="favoritos.length > 0" class="favoritos-list">
       <li *ngFor="let favorito of favoritos" class="favorito-item">
         <div class="favorito-content">
-          <img
-            *ngIf="favorito.imagenUrl"
-            [src]="favorito.imagenUrl"
-            [alt]="favorito.titulo"
-            class="favorito-imagen"
-          />
+          <a [routerLink]="['/detalle', favorito.tipoContenido === 'PELICULA' ? 'pelicula' : 'serie', favorito.contenidoId]" class="favorito-link">
+            <img
+              *ngIf="favorito.imagenUrl"
+              [src]="favorito.imagenUrl"
+              [alt]="favorito.titulo"
+              class="favorito-imagen"
+            />
+          </a>
           <div class="favorito-info">
-            <strong>{{ favorito.titulo }}</strong>
+            <a [routerLink]="['/detalle', favorito.tipoContenido === 'PELICULA' ? 'pelicula' : 'serie', favorito.contenidoId]" class="favorito-link-text">
+              <strong>{{ favorito.titulo }}</strong>
+            </a>
             <span class="tipo-contenido">{{
               favorito.tipoContenido === "PELICULA" ? "Película" : "Serie"
             }}</span>
@@ -35,9 +39,11 @@
     <p *ngIf="resenas.length === 0">Aun no has publicado reseñas.</p>
     <article *ngFor="let resena of resenas" class="resena-item">
       <h3 class="resena-titulo">{{ resena.titulo }}</h3>
-      <p class="resena-contenido">
+<p class="resena-contenido">
         {{ resena.tipoContenido === "PELICULA" ? "Pelicula" : "Serie" }}:
-        <strong>{{ getContenidoTitulo(resena) }}</strong>
+        <a [routerLink]="['/detalle', resena.tipoContenido === 'PELICULA' ? 'pelicula' : 'serie', resena.contenidoId]">
+          {{ getContenidoTitulo(resena) }}
+        </a>
       </p>
       <p class="meta">{{ resena.fechaCreacion | date: "short" }}</p>
       <p>{{ resena.comentario }}</p>

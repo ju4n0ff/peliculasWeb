@@ -193,6 +193,46 @@ public class UsuarioController {
         return "Email o contrasena incorrectos";
     }
 
+    @PostMapping("/reenviar-verificacion")
+    public ResponseEntity<?> reenviarVerificacion(@RequestBody Map<String, String> request) {
+        try {
+            validarSupabaseConfigurado();
+
+            String email = request.get("email");
+            if (email == null || email.isBlank()) {
+                return ResponseEntity.badRequest().body("El email es requerido");
+            }
+
+            RestTemplate restTemplate = new RestTemplate();
+            String url = supabaseAuthUrl("/auth/v1/resend");
+
+            Map<String, String> body = Map.of(
+                "email", email,
+                "type", "signup"
+            );
+
+            HttpEntity<Map<String, String>> httpRequest = new HttpEntity<>(body, crearSupabaseHeaders());
+            ResponseEntity<String> response = restTemplate.postForEntity(url, httpRequest, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
+                return ResponseEntity.ok("Correo de verificacion reenviado. Revisa tu bandeja de entrada.");
+            } else {
+                return ResponseEntity.badRequest().body("Error al reenviar el correo de verificacion");
+            }
+        } catch (HttpClientErrorException e) {
+            String errorResponse = e.getResponseBodyAsString().toLowerCase();
+            if (e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS || errorResponse.contains("rate_limit")) {
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("rate_limit:25");
+            }
+            if (errorResponse.contains("email_not_confirmed")) {
+                return ResponseEntity.badRequest().body("El usuario no esta registrado o ya esta verificado");
+            }
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+        }
+    }
+
     private String leerTexto(JsonNode node, String fieldName) {
         JsonNode value = node.path(fieldName);
         if (value.isMissingNode() || value.isNull() || value.asText().isBlank()) {

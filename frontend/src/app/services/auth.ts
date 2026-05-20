@@ -18,6 +18,10 @@ export class AuthService {
     return this.http.post(`${this.API}/registro`, usuario, { responseType: 'text' });
   }
 
+  reenviarVerificacion(email: string) {
+    return this.http.post(`${this.API}/reenviar-verificacion`, { email }, { responseType: 'text' });
+  }
+
   guardarToken(token: string) {
     localStorage.setItem('token', token);
   }
