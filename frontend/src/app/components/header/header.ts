@@ -268,7 +268,9 @@ error: (err) => {
       },
       error: (err) => {
         this.registrando = false;
-        this.regError = typeof err.error === 'string' ? err.error : 'El email o nombre de usuario ya existen';
+        const body = err.error;
+        this.regError = typeof body === 'string' ? body : (body?.message || body?.error || JSON.stringify(body) || 'Error al registrar');
+        console.error('Registro error:', err);
       }
     });
   }

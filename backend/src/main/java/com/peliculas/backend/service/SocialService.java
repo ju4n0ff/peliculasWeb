@@ -2,6 +2,8 @@ package com.peliculas.backend.service;
 
 import com.peliculas.backend.dto.CalificacionRequest;
 import com.peliculas.backend.dto.CalificacionResumenResponse;
+import com.peliculas.backend.dto.ComentarioRequest;
+import com.peliculas.backend.dto.ComentarioResponse;
 import com.peliculas.backend.dto.FavoritoRequest;
 import com.peliculas.backend.dto.ResenaRequest;
 import com.peliculas.backend.dto.ResenaResponse;
@@ -23,6 +25,7 @@ public class SocialService {
     private final ResenaLikeRepository resenaLikeRepository;
     private final CalificacionRepository calificacionRepository;
     private final FavoritoRepository favoritoRepository;
+    private final ResenaComentarioRepository resenaComentarioRepository;
 
     public SocialService(
             UsuarioRepository usuarioRepository,
@@ -31,7 +34,8 @@ public class SocialService {
             ResenaRepository resenaRepository,
             ResenaLikeRepository resenaLikeRepository,
             CalificacionRepository calificacionRepository,
-            FavoritoRepository favoritoRepository) {
+            FavoritoRepository favoritoRepository,
+            ResenaComentarioRepository resenaComentarioRepository) {
         this.usuarioRepository = usuarioRepository;
         this.resenaLikeRepository = resenaLikeRepository;
         this.peliculaRepository = peliculaRepository;
@@ -39,6 +43,7 @@ public class SocialService {
         this.resenaRepository = resenaRepository;
         this.calificacionRepository = calificacionRepository;
         this.favoritoRepository = favoritoRepository;
+        this.resenaComentarioRepository = resenaComentarioRepository;
     }
 
     @Transactional
@@ -97,6 +102,7 @@ public class SocialService {
             throw new RuntimeException("No puedes eliminar una resena de otro usuario");
         }
 
+        resenaComentarioRepository.deleteByResenaId(resenaId);
         resenaLikeRepository.deleteByResena_Id(resenaId);
         resenaRepository.delete(resena);
     }
@@ -105,6 +111,7 @@ public class SocialService {
     public void eliminarResenaAdmin(Long resenaId) {
         Resena resena = resenaRepository.findById(resenaId)
                 .orElseThrow(() -> new RuntimeException("Resena no encontrada"));
+        resenaComentarioRepository.deleteByResenaId(resenaId);
         resenaLikeRepository.deleteByResena_Id(resenaId);
         resenaRepository.delete(resena);
     }
@@ -245,6 +252,30 @@ public class SocialService {
                 .orElse(null);
 
         return new LikeResponse(resena.getLikes(), resena.getDislikes(), nuevoVotoActual);
+    }
+
+    @Transactional
+    public ComentarioResponse crearComentario(ComentarioRequest request) {
+        Resena resena = resenaRepository.findById(request.getResenaId())
+                .orElseThrow(() -> new RuntimeException("Resena no encontrada"));
+
+        Usuario usuario = buscarUsuario(request.getUserId());
+
+        ResenaComentario comentario = new ResenaComentario();
+        comentario.setResena(resena);
+        comentario.setUserId(usuario.getUserId());
+        comentario.setNombreUsuario(usuario.getNombreUsuario());
+        comentario.setComentario(request.getComentario());
+
+        return ComentarioResponse.fromEntity(resenaComentarioRepository.save(comentario));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ComentarioResponse> listarComentarios(Long resenaId) {
+        return resenaComentarioRepository.findByResenaIdOrderByFechaCreacionAsc(resenaId)
+                .stream()
+                .map(ComentarioResponse::fromEntity)
+                .toList();
     }
 
     private Usuario buscarUsuario(UUID userId) {

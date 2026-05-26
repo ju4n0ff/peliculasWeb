@@ -361,6 +361,93 @@
   margin-top: 12px;
 }
 
+/* Comentarios */
+.comentarios-section {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #333;
+}
+
+.comentarios-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.comentario-item {
+  background: #111;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.comentario-usuario {
+  color: #e50914;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.comentario-texto {
+  color: #ccc;
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.comentario-fecha {
+  color: #666;
+  font-size: 0.75rem;
+  width: 100%;
+}
+
+.comentario-form {
+  display: flex;
+  gap: 8px;
+}
+
+.input-comentario {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #111;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.input-comentario::placeholder {
+  color: #666;
+}
+
+.input-comentario:focus {
+  outline: none;
+  border-color: #e50914;
+}
+
+.btn-comentar {
+  padding: 8px 16px;
+  background: #e50914;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.btn-comentar:hover {
+  background: #ff3333;
+}
+
+.comentario-btn {
+  margin-left: auto;
+}
+
 .like-btn {
   background: none;
   border: none;

@@ -30,6 +30,15 @@ export interface LikeResponse {
   votoActual: string | null;
 }
 
+export interface Comentario {
+  id: number;
+  resenaId: number;
+  userId: string;
+  nombreUsuario: string;
+  comentario: string;
+  fechaCreacion: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SocialService {
   private api = 'http://localhost:8080/api/social';
@@ -109,6 +118,14 @@ export class SocialService {
       .set('tipoContenido', tipoContenido)
       .set('contenidoId', contenidoId);
     return this.http.get<{ favorito: boolean }>(`${this.api}/favoritos/existe`, { params });
+  }
+
+  crearComentario(payload: { resenaId: number; userId: string; comentario: string }): Observable<Comentario> {
+    return this.http.post<Comentario>(`${this.api}/resenas/comentarios`, payload);
+  }
+
+  listarComentarios(resenaId: number): Observable<Comentario[]> {
+    return this.http.get<Comentario[]>(`${this.api}/resenas/${resenaId}/comentarios`);
   }
 
   listarFavoritos(userId: string, tipoContenido?: TipoContenido): Observable<Array<{ id: number; tipoContenido: TipoContenido; contenidoId: number }>> {

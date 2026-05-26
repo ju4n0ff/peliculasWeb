@@ -6,6 +6,7 @@ import com.peliculas.backend.model.Usuario;
 import com.peliculas.backend.repository.CalificacionRepository;
 import com.peliculas.backend.repository.FavoritoRepository;
 import com.peliculas.backend.repository.ResenaLikeRepository;
+import com.peliculas.backend.repository.ResenaComentarioRepository;
 import com.peliculas.backend.repository.ResenaRepository;
 import com.peliculas.backend.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class UsuarioService {
     private final ResenaRepository resenaRepository;
     private final FavoritoRepository favoritoRepository;
     private final CalificacionRepository calificacionRepository;
+    private final ResenaComentarioRepository resenaComentarioRepository;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
@@ -31,18 +33,38 @@ public class UsuarioService {
             ResenaLikeRepository resenaLikeRepository,
             ResenaRepository resenaRepository,
             FavoritoRepository favoritoRepository,
-            CalificacionRepository calificacionRepository) {
+            CalificacionRepository calificacionRepository,
+            ResenaComentarioRepository resenaComentarioRepository) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.resenaLikeRepository = resenaLikeRepository;
         this.resenaRepository = resenaRepository;
         this.favoritoRepository = favoritoRepository;
         this.calificacionRepository = calificacionRepository;
+        this.resenaComentarioRepository = resenaComentarioRepository;
     }
 
     public Usuario guardar(Usuario usuario) {
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         return usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public Usuario guardarOActualizar(Usuario usuario) {
+        if (usuario.getUserId() != null) {
+            Usuario existente = usuarioRepository.findByUserId(usuario.getUserId()).orElse(null);
+            if (existente != null) {
+                existente.setNombres(usuario.getNombres());
+                existente.setApellidos(usuario.getApellidos());
+                existente.setNombreUsuario(usuario.getNombreUsuario());
+                existente.setEmail(usuario.getEmail());
+                existente.setCelular(usuario.getCelular());
+                existente.setRol(usuario.getRol());
+                existente.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
+                return usuarioRepository.save(existente);
+            }
+        }
+        return guardar(usuario);
     }
 
     public List<Usuario> listar() {
@@ -74,6 +96,7 @@ public class UsuarioService {
 
         resenaLikeRepository.deleteAll(votosDelUsuario);
         resenaLikeRepository.deleteByResenaUserId(userId);
+        resenaComentarioRepository.deleteByResenaUserId(userId);
         resenaRepository.deleteByUserId(userId);
         favoritoRepository.deleteByUserId(userId);
         calificacionRepository.deleteByUserId(userId);

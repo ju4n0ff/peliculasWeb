@@ -66,7 +66,7 @@ public class UsuarioController {
             if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
                 usuario.setUserId(extraerUserIdSupabase(response.getBody()));
                 usuario.setRol("USER");
-                usuarioService.guardar(usuario);
+                usuarioService.guardarOActualizar(usuario);
                 return ResponseEntity.ok("Usuario registrado. Revisa tu correo electronico para verificar la cuenta antes de iniciar sesion.");
             } else {
                 return ResponseEntity.badRequest().body("Error al registrar en Supabase");

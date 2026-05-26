@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CatalogoService, Pelicula, Serie } from '../../services/catalogo';
 import { AuthService } from '../../services/auth';
-import { SocialService, CalificacionResumen, Resena, TipoContenido } from '../../services/social';
+import { SocialService, CalificacionResumen, Resena, Comentario, TipoContenido } from '../../services/social';
 
 @Component({
   selector: 'app-detalle',
@@ -27,6 +27,9 @@ export class DetalleComponent implements OnInit {
   comentarioResena = '';
   esFavorito = false;
   cargando = true;
+  comentarios: { [resenaId: number]: Comentario[] } = {};
+  comentariosVisibles: { [resenaId: number]: boolean } = {};
+  textoComentario: { [resenaId: number]: string } = {};
 
   constructor(
     private route: ActivatedRoute,
@@ -188,6 +191,41 @@ toggleFavorito() {
         resena.dislikes = res.dislikes;
         resena.votoActual = res.votoActual;
       }
+    });
+  }
+
+  toggleComentarios(resena: Resena) {
+    const id = resena.id;
+    this.comentariosVisibles[id] = !this.comentariosVisibles[id];
+
+    if (this.comentariosVisibles[id] && !this.comentarios[id]) {
+      this.socialService.listarComentarios(id).subscribe({
+        next: (data) => (this.comentarios[id] = data),
+        error: () => (this.comentarios[id] = [])
+      });
+    }
+  }
+
+  enviarComentario(resenaId: number) {
+    const userId = this.authService.obtenerUserId();
+    if (!userId) {
+      alert('Inicia sesión para comentar');
+      return;
+    }
+
+    const texto = this.textoComentario[resenaId]?.trim();
+    if (!texto) return;
+
+    this.socialService.crearComentario({ resenaId, userId, comentario: texto }).subscribe({
+      next: (comentario) => {
+        if (!this.comentarios[resenaId]) {
+          this.comentarios[resenaId] = [];
+        }
+        this.comentarios[resenaId].push(comentario);
+        this.textoComentario[resenaId] = '';
+        this.comentariosVisibles[resenaId] = true;
+      },
+      error: () => alert('No se pudo publicar el comentario')
     });
   }
 

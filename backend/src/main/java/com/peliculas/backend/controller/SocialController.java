@@ -103,4 +103,14 @@ public class SocialController {
             @RequestParam Long contenidoId) {
         return Map.of("favorito", socialService.esFavorito(userId, tipoContenido, contenidoId));
     }
+
+    @PostMapping("/resenas/comentarios")
+    public ComentarioResponse crearComentario(@RequestBody ComentarioRequest request) {
+        return socialService.crearComentario(request);
+    }
+
+    @GetMapping("/resenas/{resenaId}/comentarios")
+    public List<ComentarioResponse> listarComentarios(@PathVariable Long resenaId) {
+        return socialService.listarComentarios(resenaId);
+    }
 }

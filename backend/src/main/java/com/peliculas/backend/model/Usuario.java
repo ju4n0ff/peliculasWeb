@@ -6,9 +6,11 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "usuarios")
-
 public class Usuario {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
@@ -18,7 +20,7 @@ public class Usuario {
     @Column(name = "apellidos", nullable = false)
     private String apellidos;
 
-    @Column(name = "nombre_usuario", nullable = false, unique = true)
+    @Column(name = "nombre_usuario", nullable = false)
     private String nombreUsuario;
 
     @Column(name = "rol", nullable = false)
@@ -27,13 +29,13 @@ public class Usuario {
     @Column(name = "celular")
     private String celular;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "contrasena", nullable = false)
     private String contrasena;
 
-    @Column(name = "fecha_creacion", insertable = false, updatable = false)
+    @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
     @Column(name = "ultimo_acceso")
@@ -45,6 +47,14 @@ public class Usuario {
     }
 
     public Usuario() {}
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public UUID getUserId() {
         return userId;

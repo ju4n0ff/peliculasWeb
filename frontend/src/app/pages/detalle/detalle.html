@@ -79,8 +79,6 @@
         <h4 class="resena-titulo">{{ resena.titulo }}</h4>
         <p class="resena-comentario">{{ resena.comentario }}</p>
 
-        
-
         <div class="votos-resena">
           <button class="like-btn" (click)="votar(resena, 'LIKE')">
             <span class="like-icon" [class.liked]="resena.votoActual === 'LIKE'">👍</span>
@@ -90,6 +88,27 @@
             <span class="dislike" [class.disliked]="resena.votoActual === 'DISLIKE'">👎</span>
             <span>{{ resena.dislikes }}</span>
           </button>
+          <button class="like-btn comentario-btn" (click)="toggleComentarios(resena)">
+            <span>💬</span>
+            <span>{{ comentarios[resena.id]?.length || 0 }}</span>
+          </button>
+        </div>
+
+        <div class="comentarios-section" *ngIf="comentariosVisibles[resena.id]">
+          <div class="comentarios-lista" *ngIf="comentarios[resena.id]?.length">
+            <div class="comentario-item" *ngFor="let c of comentarios[resena.id]">
+              <span class="comentario-usuario">{{ c.nombreUsuario }}</span>
+              <span class="comentario-texto">{{ c.comentario }}</span>
+              <span class="comentario-fecha">{{ c.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+          <div class="comentario-form">
+            <input [(ngModel)]="textoComentario[resena.id]" 
+                   placeholder="Escribe un comentario..." 
+                   class="input-comentario"
+                   (keyup.enter)="enviarComentario(resena.id)">
+            <button class="btn-comentar" (click)="enviarComentario(resena.id)">Comentar</button>
+          </div>
         </div>
       </div>
       
