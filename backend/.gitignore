@@ -36,5 +36,3 @@ build/
 .metals
 .bloop
 
-### Local secrets ###
-src/main/resources/application.properties
