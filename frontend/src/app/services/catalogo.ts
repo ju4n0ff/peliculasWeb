@@ -23,8 +23,8 @@ export interface Serie {
 
 @Injectable({ providedIn: 'root' })
 export class CatalogoService {
-  private peliculasApi = 'http://localhost:8080/api/peliculas';
-  private seriesApi = 'http://localhost:8080/api/series';
+  private peliculasApi = 'https://peliculasweb.onrender.com/api/peliculas';
+  private seriesApi = 'https://peliculasweb.onrender.com/api/series';
 
   constructor(private http: HttpClient) {}
 
