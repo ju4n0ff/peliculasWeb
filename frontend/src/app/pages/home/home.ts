@@ -25,9 +25,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.videoSrc = this.sanitizer.bypassSecurityTrustResourceUrl(
-      'https://www.youtube-nocookie.com/embed/i1eJMig5Ik4?autoplay=1&controls=1&modestbranding=1&rel=0'
-    );
 
     this.catalogoService.listarPeliculas().subscribe({
       next: (data) => (this.peliculas = data),
@@ -47,6 +44,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   playVideo(): void {
+    this.videoSrc = this.sanitizer.bypassSecurityTrustResourceUrl(
+      'https://www.youtube-nocookie.com/embed/i1eJMig5Ik4?autoplay=1&controls=1&modestbranding=1&rel=0'
+    );
     this.videoPlaying = true;
   }
 

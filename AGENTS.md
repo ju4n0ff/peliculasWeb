@@ -15,9 +15,9 @@
 
 ## Runtime wiring that agents often miss
 - Frontend services (`auth.ts`, `catalogo.ts`, `social.ts`) hardcode `http://localhost:8080/api/...`, so backend must run on port `8080`.
-- Backend CORS allows `http://localhost:4200` in `SecurityConfig.java:64`. `SocialController.java` also has a local `@CrossOrigin`.
+- Backend CORS allows `http://localhost:4200` and `https://peliculas-web-tau.vercel.app` in `SecurityConfig.java:64`. `SocialController.java` also has a local `@CrossOrigin`.
 - Security is feature-flagged by `app.security.enabled` in gitignored `application.properties`; currently `false` so all requests permitted.
-- `application.properties` (DB credentials, Supabase config) is gitignored and NOT tracked. A fresh dev must create it manually. Contents available in running env or ask.
+- `application.properties` is now tracked with `${...}` env-var placeholders. Set env vars locally or create `application-local.properties` for overrides.
 - Backend test suite is minimal: one `@SpringBootTest` context-loads test.
 
 ## API endpoints
@@ -32,5 +32,5 @@
 - State stored in `localStorage`: `token`, `userId`, `nombreUsuario`, `rol`.
 
 ## Safety and hygiene notes
-- `backend/src/main/resources/application.properties` is gitignored and contains live DB credentials + Supabase keys; never log, commit, or leak them.
+- `backend/src/main/resources/application.properties` is now tracked with `${...}` env-var placeholders; never log or leak them.
 - Build outputs and deps (`backend/target`, `frontend/dist`, `frontend/node_modules`, `frontend/.angular/cache`) should not be edited manually.
