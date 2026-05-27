@@ -41,7 +41,7 @@ export interface Comentario {
 
 @Injectable({ providedIn: 'root' })
 export class SocialService {
-  private api = 'https://peliculasweb.onrender.com/api/social';
+  private api = 'https://peliculasweb-production.up.railway.app/api/social';
 
   constructor(private http: HttpClient) {}
 

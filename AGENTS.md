@@ -15,7 +15,7 @@
 
 ## Runtime wiring that agents often miss
 - Frontend services (`auth.ts`, `catalogo.ts`, `social.ts`) hardcode `http://localhost:8080/api/...`, so backend must run on port `8080`.
-- Backend CORS allows `http://localhost:4200` and `https://peliculas-web-tau.vercel.app` in `SecurityConfig.java:64`. `SocialController.java` also has a local `@CrossOrigin`.
+- Backend CORS allows `http://localhost:4200`, `https://peliculas-web-tau.vercel.app`, and `https://peliculasweb-production.up.railway.app` in `SecurityConfig.java:64`. `SocialController.java` also has a local `@CrossOrigin`.
 - Security is feature-flagged by `app.security.enabled` in gitignored `application.properties`; currently `false` so all requests permitted.
 - `application.properties` is now tracked with `${...}` env-var placeholders. Set env vars locally or create `application-local.properties` for overrides.
 - Backend test suite is minimal: one `@SpringBootTest` context-loads test.

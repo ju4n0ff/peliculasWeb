@@ -44,8 +44,10 @@ public class SecurityConfig {
                 .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/usuarios/login").permitAll()
+                        .requestMatchers("/api/usuarios/registro").permitAll()
                         .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
-                        .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
+                        .requestMatchers("/api/peliculas/**", "/api/series/**").permitAll()
+                        .requestMatchers("/health", "/").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
@@ -61,7 +63,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:4200", "https://peliculas-web-tau.vercel.app"));
+        config.setAllowedOrigins(List.of("http://localhost:4200", "https://peliculas-web-tau.vercel.app", "https://peliculasweb-production.up.railway.app"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
