@@ -59,9 +59,9 @@ export class AdminComponent implements OnInit {
   nuevaPelicula: Partial<Pelicula> = {};
   nuevaSerie: Partial<Serie> = {};
 
-  private apiPeliculas = 'http://localhost:8080/api/peliculas';
-  private apiSeries = 'http://localhost:8080/api/series';
-  private apiResenas = 'http://localhost:8080/api/social';
+  private apiPeliculas = 'https://peliculasweb-production.up.railway.app/api/peliculas';
+  private apiSeries = 'https://peliculasweb-production.up.railway.app/api/series';
+  private apiResenas = 'https://peliculasweb-production.up.railway.app/api/social';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

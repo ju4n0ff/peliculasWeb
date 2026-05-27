@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/peliculas")
-@CrossOrigin(origins = "http://localhost:4200") // Para Angular
+@CrossOrigin(origins = {"http://localhost:4200", "https://peliculas-web-tau.vercel.app"})
 public class PeliculaController {
 
     @Autowired
