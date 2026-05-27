@@ -8,6 +8,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 
 import org.springframework.web.cors.*;
 import java.util.List;
@@ -47,6 +48,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/usuarios/registro").permitAll()
                         .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/api/peliculas/**", "/api/series/**").permitAll()
+                        .requestMatchers("/api/social/favoritos/existe").permitAll()
+                        .requestMatchers("/api/social/calificaciones/resumen").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/social/**").permitAll()
                         .requestMatchers("/health", "/").permitAll()
                         .anyRequest().authenticated()
                 )
