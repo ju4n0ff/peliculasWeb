@@ -23,8 +23,8 @@ export interface Serie {
 
 @Injectable({ providedIn: 'root' })
 export class CatalogoService {
-  private peliculasApi = 'https://peliculasweb-production.up.railway.app/api/peliculas';
-  private seriesApi = 'https://peliculasweb-production.up.railway.app/api/series';
+  private peliculasApi = 'https://peliculasweb-backend.onrender.com/api/peliculas';
+  private seriesApi = 'https://peliculasweb-backend.onrender.com/api/series';
 
   constructor(private http: HttpClient) {}
 

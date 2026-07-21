@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/social")
-@CrossOrigin(origins = {"http://localhost:4200", "https://peliculas-web-tau.vercel.app", "https://peliculasweb-production.up.railway.app"})
+@CrossOrigin(origins = {"http://localhost:4200", "https://peliculas-web-tau.vercel.app", "https://peliculasweb-backend.onrender.com"})
 public class SocialController {
 
     private final SocialService socialService;
