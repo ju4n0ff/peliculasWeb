@@ -67,7 +67,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("http://localhost:4200", "https://peliculas-web-tau.vercel.app", "https://peliculasweb-backend.onrender.com"));
+        config.setAllowedOrigins(List.of("http://localhost:4200", "https://peliculas-web-tau.vercel.app", "https://peliculasweb-production.up.railway.app"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

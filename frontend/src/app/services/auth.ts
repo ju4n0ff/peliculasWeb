@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class AuthService {
 
-  private API = 'https://peliculasweb-backend.onrender.com/api/usuarios';
+  private API = 'https://peliculasweb-production.up.railway.app/api/usuarios';
 
   constructor(private http: HttpClient) {}
 
